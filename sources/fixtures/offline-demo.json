@@ -1,0 +1,64 @@
+{
+  "registry": {
+    "sources": [
+      {
+        "id": "10000000-0000-4000-8000-000000000001",
+        "slug": "fixture",
+        "name": "Synthetic offline fixture — not an official source",
+        "status": "active",
+        "authority_type": "test_fixture",
+        "created_at": "2026-09-08T00:00:00Z",
+        "updated_at": "2026-09-08T00:00:00Z"
+      }
+    ],
+    "hosts": [
+      {
+        "id": "10000000-0000-4000-8000-000000000003",
+        "source_id": "10000000-0000-4000-8000-000000000001",
+        "hostname": "fixture.gov.tr",
+        "include_subdomains": false,
+        "status": "active",
+        "created_at": "2026-09-08T00:00:00Z"
+      }
+    ],
+    "endpoints": [
+      {
+        "id": "10000000-0000-4000-8000-000000000002",
+        "source_id": "10000000-0000-4000-8000-000000000001",
+        "slug": "fixture",
+        "name": "Offline fixture endpoint",
+        "base_url": "https://fixture.gov.tr/",
+        "endpoint_type": "documents",
+        "status": "active",
+        "poll_interval_seconds": 3600,
+        "last_successful_check_at": null,
+        "created_at": "2026-09-08T00:00:00Z",
+        "updated_at": "2026-09-08T00:00:00Z"
+      }
+    ]
+  },
+  "document": {
+    "discovered": {
+      "url": "https://fixture.gov.tr/synthetic-document",
+      "external_identifier": null
+    },
+    "fetched": {
+      "requested_url": "https://fixture.gov.tr/synthetic-document",
+      "final_url": "https://fixture.gov.tr/synthetic-document",
+      "body": "SYNTHETIC TEST ONLY — initial text.",
+      "mime_type": "text/plain",
+      "fetched_at": "2026-09-08T00:00:00Z"
+    },
+    "parsed": {
+      "canonical_url": "https://fixture.gov.tr/synthetic-document",
+      "title": "Synthetic fixture document",
+      "document_type": "announcement",
+      "raw_text": "SYNTHETIC TEST ONLY — initial text.",
+      "published_at": null,
+      "attachments": [],
+      "metadata": {
+        "synthetic": true
+      }
+    }
+  }
+}

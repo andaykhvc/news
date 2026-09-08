@@ -1,0 +1,41 @@
+{
+  "name": "sak-haber",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.19.0",
+  "engines": {
+    "node": ">=22.14.0",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @sak/web dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck && tsc --noEmit -p tsconfig.tests.json",
+    "lint": "eslint . && node scripts/check-boundaries.mjs && pnpm seed:check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "worker:demo": "pnpm --filter @sak/worker demo",
+    "worker": "pnpm --filter @sak/worker start",
+    "db:start": "supabase start",
+    "db:reset": "supabase db reset",
+    "db:lint": "supabase db lint --local",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
+    "seed:generate": "node scripts/generate-seed.mjs",
+    "seed:check": "node scripts/generate-seed.mjs --check"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.8",
+    "@eslint/js": "10.0.1",
+    "@types/node": "26.5.0",
+    "eslint": "10.10.0",
+    "prettier": "3.9.6",
+    "supabase": "2.117.0",
+    "tsx": "4.23.13",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.70.0",
+    "vitest": "5.0.0"
+  }
+}

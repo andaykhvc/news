@@ -1,0 +1,92 @@
+{
+  "sources": [
+    {
+      "id": "00000000-0000-4000-8000-000000000001",
+      "slug": "osym",
+      "name": "Ölçme, Seçme ve Yerleştirme Merkezi",
+      "status": "candidate",
+      "authority_type": "public_authority",
+      "created_at": "2026-09-08T00:00:00Z",
+      "updated_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000002",
+      "slug": "meb",
+      "name": "Millî Eğitim Bakanlığı",
+      "status": "candidate",
+      "authority_type": "public_authority",
+      "created_at": "2026-09-08T00:00:00Z",
+      "updated_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000003",
+      "slug": "yok",
+      "name": "Yükseköğretim Kurulu",
+      "status": "candidate",
+      "authority_type": "public_authority",
+      "created_at": "2026-09-08T00:00:00Z",
+      "updated_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000004",
+      "slug": "gsb",
+      "name": "Gençlik ve Spor Bakanlığı",
+      "status": "candidate",
+      "authority_type": "public_authority",
+      "created_at": "2026-09-08T00:00:00Z",
+      "updated_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-8000-000000000005",
+      "slug": "yokak",
+      "name": "Yükseköğretim Kalite Kurulu",
+      "status": "candidate",
+      "authority_type": "public_authority",
+      "created_at": "2026-09-08T00:00:00Z",
+      "updated_at": "2026-09-08T00:00:00Z"
+    }
+  ],
+  "hosts": [
+    {
+      "id": "00000000-0000-4000-9000-000000000001",
+      "source_id": "00000000-0000-4000-8000-000000000001",
+      "hostname": "osym.gov.tr",
+      "include_subdomains": false,
+      "status": "candidate",
+      "created_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000002",
+      "source_id": "00000000-0000-4000-8000-000000000002",
+      "hostname": "meb.gov.tr",
+      "include_subdomains": false,
+      "status": "candidate",
+      "created_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000003",
+      "source_id": "00000000-0000-4000-8000-000000000003",
+      "hostname": "yok.gov.tr",
+      "include_subdomains": false,
+      "status": "candidate",
+      "created_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000004",
+      "source_id": "00000000-0000-4000-8000-000000000004",
+      "hostname": "gsb.gov.tr",
+      "include_subdomains": false,
+      "status": "candidate",
+      "created_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000005",
+      "source_id": "00000000-0000-4000-8000-000000000005",
+      "hostname": "yokak.gov.tr",
+      "include_subdomains": false,
+      "status": "candidate",
+      "created_at": "2026-09-08T00:00:00Z"
+    }
+  ],
+  "endpoints": []
+}

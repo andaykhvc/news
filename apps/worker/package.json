@@ -1,0 +1,21 @@
+{
+  "name": "@sak/worker",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "demo": "tsx src/main.ts --demo",
+    "start": "tsx src/main.ts"
+  },
+  "dependencies": {
+    "@sak/shared": "workspace:*",
+    "@sak/domain": "workspace:*",
+    "@sak/validation": "workspace:*",
+    "@sak/source-sdk": "workspace:*",
+    "@sak/ingestion": "workspace:*",
+    "@sak/database": "workspace:*",
+    "zod": "4.5.4"
+  }
+}
