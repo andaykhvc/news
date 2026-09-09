@@ -29,6 +29,15 @@ export async function withRetry<T>(
     if (result.ok || !result.error.retryable || attempt >= policy.maxAttempts)
       return result;
     onRetry(attempt);
-    await policy.sleep(policy.delayMs * 2 ** (attempt - 1), signal);
+    await policy.sleep(
+      Math.min(
+        60000,
+        Math.max(
+          policy.delayMs * 2 ** (attempt - 1),
+          result.error.retry_after_ms ?? 0,
+        ),
+      ),
+      signal,
+    );
   }
 }

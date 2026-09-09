@@ -115,8 +115,10 @@ describe('generic ingestion', () => {
           },
         },
       ]);
-      expect((await run({ adapter })).status).toBe('failed');
-      expect(state.documents.size).toBe(0);
+      expect((await run({ adapter })).status).toBe(
+        stage === 'attachment' ? 'partial' : 'failed',
+      );
+      expect(state.documents.size).toBe(stage === 'attachment' ? 1 : 0);
     },
   );
   it('records thrown parser failures and finishes the run', async () => {

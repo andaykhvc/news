@@ -1,97 +1,71 @@
 # Şak Haber
 
-Resmî Türk kamu kaynaklarını otomatik takip etmek ve doğrulanabilir duyuruları yayımlamak için TypeScript temeli.
+Şak Haber, doğrudan resmî `gov.tr` kaynaklarından belge toplar; değişmez sürümler, yapılandırılmış iddialar ve kesin kanıt konumları oluşturur. **Prompt 2: veri alımı ve doğrulama** uygulanmıştır. Son kullanıcı ekranı ve yayın deneyimi Prompt 3 kapsamındadır.
 
-**Güncel hedef:** kullanıcı, resmî kaynaklardan otomatik haber/duyuru toplanmasını ve yayımlanmasını istiyor. Ayrı bir backend API uygulaması yok. Next.js web katmanı, Supabase/PostgreSQL kalıcı kayıtları ve tek çalıştırmalık Node.js toplama işi yeterli. İlk teknik şartnamedeki fact/evidence/answer modelleri ileride kullanılabilecek pasif temellerdir; çalışan bir soru-cevap ürünü veya AI haber üretimi değildir.
+```text
+SOURCE → DOCUMENT → DOCUMENT VERSION → FACT → EVIDENCE → ANSWER
+```
 
-Bu aşama **Prompt 1: altyapı** kapsamındadır. Gerçek kurum adaptörü, canlı tarama, otomatik yayın kararı, son kullanıcı arayüzü veya üretim zamanlaması henüz yoktur. Örnek iş tamamen çevrimdışı ve sentetiktir.
+Ayrı backend API sunucusu yoktur. Next.js/Vercel web katmanı, PostgreSQL/Supabase ve tek çalıştırmalık Node.js worker kullanılır. Worker uzun süreli taramalar için Vercel sayfa isteğinin içinde çalıştırılmaz. LLM yalnızca aday çıkarır; doğrulama, yetki veya yayın kararı vermez.
 
-## Kurulum
+## Başlangıç
 
-Node.js 22.14+ (CI: Node 24) ve `pnpm 11.19.0` gerekir.
+Node.js 22.14+ (CI: 24), `pnpm 11.19.0`:
 
 ```sh
 pnpm install --frozen-lockfile
 pnpm check
 pnpm worker:demo
+pnpm worker --source osym --fixture osym-detail.html
+pnpm worker --source osym --fixture osym-guide.pdf
+pnpm worker --source osym --max-pages 1 --max-documents 1 --dry-run
 pnpm dev
 ```
 
-Web: `http://localhost:3000`. `/health` paketlerin web uygulamasında çalıştığını gösterir; veritabanı sağlık kontrolü değildir. Ana sayfa yalnızca geliştirme iskeletidir ve indekslemeye kapalıdır. Derleme ve örnek iş için şifre/API anahtarı gerekmez.
+`worker:demo` eski sentetik sürümleme örneğidir. `--fixture` komutları doğrudan resmî kaynaklardan kaydedilmiş gerçek HTML/PDF dosyalarını okur. Testler ağ ve API anahtarı gerektirmez. `--dry-run` canlı kaynak okuyabilir; veritabanına yazmaz. CLI hiçbir koşulda yayın yapmaz.
 
-## Komutlar
+## Docker ve kalıcı kayıt
 
-| Komut                               | İşlev                                                                      |
-| ----------------------------------- | -------------------------------------------------------------------------- |
-| `pnpm format` / `pnpm format:check` | Biçimlendirme / kontrol                                                    |
-| `pnpm lint`                         | ESLint, paket sınırları ve seed tutarlılığı                                |
-| `pnpm typecheck`                    | Tüm paketler, web, worker ve testler için strict TypeScript                |
-| `pnpm test`                         | Vitest birim testleri ve PGlite PostgreSQL migration testleri              |
-| `pnpm build`                        | Paket tip derlemeleri ve Next.js üretim derlemesi                          |
-| `pnpm worker:demo`                  | Ağsız `new_document → unchanged → new_version` örneği                      |
-| `pnpm worker`                       | Kurulu adaptör durumunu yazıp çıkar; daemon/scheduler değildir             |
-| `pnpm seed:generate`                | Tek kayıt defterinden SQL seed üretir                                      |
-| `pnpm db:start`                     | Yerel Supabase'i başlatır; Docker gerekir                                  |
-| `pnpm db:reset`                     | **Yalnızca bu yerel projenin verilerini siler**, migration ve seed uygular |
-| `pnpm db:lint`                      | Çalışan yerel PostgreSQL için SQL denetimi                                 |
-
-## Yerel veritabanı
-
-`supabase/config.toml` projeye özel `sak-haber` kimliği ve 56321 API / 56322 PostgreSQL portlarını kullanır. Başka yerel Supabase projeleriyle varsayılan port çakışmasını önler.
-
-Tam yerel geliştirme ortamı için `pnpm db:start`; yalnızca bu aşamada gereken hizmetler için:
+Yerel proje `sak-haber`, API portu **56321**, PostgreSQL portu **56322**. Başka projelerin Docker hizmetlerini etkilemez.
 
 ```sh
 pnpm exec supabase start -x gotrue,realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+pnpm exec supabase migration up --local
+# Yeni kurulumda seed db reset tarafından uygulanır. Mevcut yerel veriyi koruyarak seed uygulamak için:
+docker exec -i supabase_db_sak-haber psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/seed.sql
 ```
 
-CLI ilk kurulum sırasında şema hazırlığı için dışlanan hizmetlerin bazı imajlarını da indirebilir. Bu, ürüne bu hizmetlerin eklendiği anlamına gelmez.
-
-Canlı worker bağlantısı ileride gerektiğinde `.env.example` dosyasını `.env` olarak kopyalayıp yerel/proje sunucu anahtarını girin. `SUPABASE_SERVICE_ROLE_KEY` yalnızca server/worker içindir; `NEXT_PUBLIC_` önekine taşınmaz. Web iskeleti bu anahtarı kullanmaz. Worker paket dizininden çalışırken kök ortam dosyasını açıkça yükleyin:
+`.env.example` içindeki sunucu değişkenlerini kökteki `.env` dosyasına doldurun. Anahtarlar `NEXT_PUBLIC_` değişkeni olamaz. Ortamı açıkça yükleyerek:
 
 ```sh
-pnpm --filter @sak/worker exec tsx --env-file=../../.env src/main.ts --endpoint REGISTERED_ENDPOINT_UUID
+pnpm --filter @sak/worker exec tsx --env-file=../../.env src/main.ts --source osym --write
+pnpm --filter @sak/worker exec tsx --env-file=../../.env src/main.ts --version VERSION_UUID --candidates /absolute/path/candidates.json
+pnpm --filter @sak/worker exec tsx --env-file=../../.env src/main.ts --version VERSION_UUID --provider openai --write
 ```
 
-Henüz gerçek adaptör bulunmadığından bu komut uygun bir hata verir. Kaynak eklemek yalnızca URL girmekten ibaret değildir; [kaynak politikası](SOURCE_POLICY.md) ve [adaptör rehberi](sources/README.md) uygulanır.
+`--candidates` dosyası `{ "candidates": [...] }` biçiminde strict `FactCandidate` çıktısıdır; modele gerek olmadan aynı deterministik doğrulayıcıdan geçer. `--provider openai` için `OPENAI_API_KEY` ve açıkça seçilmiş `EXTRACTION_MODEL` gerekir. Anahtar/model yokken sağlayıcı çalışmaz. Kalıcı taramada `--provider openai` eklenirse yeni belgeler aynı doğrulama hattından geçirilir.
 
-## Depo
+## Komutlar
 
-```text
-apps/
-  web/                  Next.js App Router iskeleti ve /health
-  worker/               Tek iş sınırı, CLI ve ağsız örnek
-packages/
-  domain/               Saf modeller, yaşam döngüleri ve Zod şemaları
-  database/             Supabase repository'leri ve test belleği
-  source-sdk/           Adaptör sözleşmeleri ve enjekte edilen HTTP taşıyıcısı
-  ingestion/            Genel veri alımı, tekrar deneme, hash ve persistence portları
-  validation/           URL, registry, kanıt ve yayın önkoşulları
-  shared/               Result ve JSON logger
-sources/
-  registry.json         Beş kurum ve alan adı: yalnızca aday
-  fixtures/             Açıkça işaretlenmiş sentetik çevrimdışı veri
-supabase/
-  migrations/           Sürümlenen PostgreSQL şeması ve atomik kayıt RPC'si
-  seed.sql              registry.json dosyasından üretilir
-tests/                  Birim ve PostgreSQL davranış testleri
-scripts/                Paket sınırları ve seed üretimi
-.github/workflows/      CI
-```
+| Komut                                                      | İşlev                                                                   |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------- |
+| `pnpm check`                                               | Biçim, lint, paket sınırları, strict tipler, testler, üretim derlemesi  |
+| `pnpm worker --help`                                       | CLI seçenekleri                                                         |
+| `pnpm worker --source all --max-pages 1 --max-documents 1` | Beş kuruma ait altı uç noktada sınırlı dry run                          |
+| `pnpm seed:generate`                                       | Registry ve eğitim ontolojisinden seed üretir                           |
+| `pnpm db:lint`                                             | Yerel PostgreSQL fonksiyonlarını denetler                               |
+| `pnpm db:reset`                                            | **Bu yerel projenin verilerini siler**; normal güncellemede kullanılmaz |
 
-## Sürüm tercihleri
+## Kaynaklar ve sınırlar
 
-Bağımlılıklar ve lockfile sabitlenmiştir. Başlangıçta doğrulanan Next.js 16.3.4, React 19.2.8, Zod 4.5.4, Supabase JS 2.116.0 kullanılır. TypeScript 7 mevcut olmasına rağmen `typescript-eslint 8.70.0` `<6.1` gerektirdiği için araçların desteklediği son kararlı sürüm 6.0.3 seçilmiştir. Yükseltmelerde uyumluluk yeniden kontrol edilmelidir.
+ÖSYM, MEB, YÖK, GSB/KYGM ve YÖKAK adaptörleri vardır. [Doğrulanmış uç noktalar ve erişim sınırları](docs/official-endpoints.md), [işletim ve doğrulama raporu](docs/phase2.md), [mimari](ARCHITECTURE.md), [kaynak politikası](SOURCE_POLICY.md).
 
-## Sonraki aşama
+MEB dinamik duyuru arşivi erişimi reddettiği için etkin değildir; MEB ana sayfasındaki resmî haber akışı kullanılır. YÖK eklerindeki kayıt dışı alt alan adları otomatik güven kazanmaz. Kısmi arşiv taraması veya boş sonuç, duyuru yapılmadığını kanıtlamaz.
 
-1. İlk kurumun gerçek uç noktalarını ve yönlendirme/alan adı politikasını doğrulamak.
-2. Onaylanan kaynakları açıkça etkinleştirmek; fixture tabanlı ilk gerçek adaptörü yazmak.
-3. DNS/IP sabitlemeli ağ çıkışı, robots/poll politikası, oran sınırı ve kalıcı yeniden deneme planını eklemek.
-4. PDF/binary indirme, ham dosya saklama ve sayfa/konum temelli metin çıkarımı.
-5. Doğrulanmış duyurudan yayın kaydına geçiş, düzeltme/geri çekme akışı ve halka açık haber ekranı.
-6. Worker için üretim tetiklemesi, kilit/lease, yarım kalmış crawl kurtarma ve işletim politikası.
+PDF dosyaları boyut/sayfa/süre sınırlarıyla ayrı worker thread içinde ayrıştırılır. Ham dosyalar SHA-256 ile PostgreSQL'de saklanır. OCR yoktur. Karmaşık tablolar, eksik yıllar, yerel saat için belirtilmeyen UTC offset'i ve desteklenmeyen yapılandırılmış değerler inceleme gerektirir. Çelişkiler açık operatör kararı olmadan çözülmez.
 
-Redis, vektör veritabanı, LLM veya ayrı API sunucusu bu temelin gereksinimi değildir.
+Canlı LLM çağrısı, üretim zamanlayıcısı, yarım kalan iş kurtarma, ölçekli yük testi ve kullanıcıya açık yayın servisi bu teslimde etkinleştirilmemiştir. Prompt 3; yanıt/arama deneyimi, kullanıcı ekranları ve bu kontrolleri zorunlu kullanan yayın katmanını kuracaktır.
 
-Ayrıntılar: [PRODUCT.md](PRODUCT.md), [SOURCE_POLICY.md](SOURCE_POLICY.md), [ARCHITECTURE.md](ARCHITECTURE.md).
+## Vercel
+
+Framework: **Next.js**. Root Directory: **`apps/web`**. Build: `pnpm build`, çıktı dizini varsayılan. Monorepo kökündeki lockfile/workspace paketlerine erişim açık olmalıdır. `ENABLE_EXPERIMENTAL_COREPACK=1` sabit pnpm sürümünü kullanır. Web iskeleti veri toplama işi başlatmaz ve servis anahtarı gerektirmez.

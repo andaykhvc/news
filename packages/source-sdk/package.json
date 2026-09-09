@@ -21,6 +21,8 @@
     "@sak/domain": "workspace:*",
     "@sak/shared": "workspace:*",
     "@sak/validation": "workspace:*",
+    "cheerio": "1.2.0",
+    "ipaddr.js": "2.5.0",
     "zod": "4.5.4"
   }
 }

@@ -64,6 +64,16 @@ export function createHttpClient(options: {
                 type: 'fetch_failed',
                 message: `HTTP ${response.status}`,
                 retryable: response.status === 429 || response.status >= 500,
+                retry_after_ms: Math.min(
+                  60000,
+                  Math.max(
+                    0,
+                    Number(response.headers.get('retry-after')) * 1000 ||
+                      Date.parse(response.headers.get('retry-after') ?? '') -
+                        Date.now() ||
+                      0,
+                  ),
+                ),
               },
             };
           }
@@ -74,7 +84,13 @@ export function createHttpClient(options: {
               ?.trim()
               .toLowerCase() ?? '';
           if (
-            !['text/html', 'text/plain', 'application/xhtml+xml'].includes(mime)
+            ![
+              'text/html',
+              'text/plain',
+              'application/xhtml+xml',
+              'application/pdf',
+              'application/json',
+            ].includes(mime)
           ) {
             await response.body?.cancel();
             throw new Error(`Unsupported text MIME type: ${mime}`);
@@ -112,13 +128,17 @@ export function createHttpClient(options: {
             response.headers
               .get('content-type')
               ?.match(/charset=["']?([^;"'\s]+)/i)?.[1] ?? 'utf-8';
-          const body = new TextDecoder(charset, { fatal: true }).decode(bytes);
+          const body =
+            mime === 'application/pdf'
+              ? '[binary PDF: see body_base64]'
+              : new TextDecoder(charset, { fatal: true }).decode(bytes);
           return {
             ok: true,
             value: {
               requested_url: requestedUrl,
               final_url: validated.url,
               body,
+              body_base64: Buffer.from(bytes).toString('base64'),
               mime_type: mime,
               fetched_at: (options.now?.() ?? new Date()).toISOString(),
             },
@@ -133,7 +153,16 @@ export function createHttpClient(options: {
             message: errorMessage(error),
             retryable:
               !signal?.aborted &&
-              (error instanceof TypeError ||
+              (combined.aborted ||
+                (error instanceof Error &&
+                  'code' in error &&
+                  [
+                    'ECONNRESET',
+                    'ETIMEDOUT',
+                    'EAI_AGAIN',
+                    'ECONNREFUSED',
+                  ].includes(String(error.code))) ||
+                error instanceof TypeError ||
                 (error instanceof Error && error.name === 'TimeoutError')),
           },
         };

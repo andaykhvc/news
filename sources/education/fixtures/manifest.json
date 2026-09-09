@@ -1,0 +1,145 @@
+{
+  "osym-list.html": {
+    "url": "https://www.osym.gov.tr/Duyurular/Index",
+    "final_url": "https://www.osym.gov.tr/Duyurular/Index",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 588614,
+    "sha256": "9d845a2ed1e7487f15dafa6897eafdd7a05684b61be45637fec8a8f81f7c0d51",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.osym.gov.tr/Duyurular/Index"
+  },
+  "osym-detail.html": {
+    "url": "https://www.osym.gov.tr/2026-dgs-tercihlerin-alinmasi",
+    "final_url": "https://www.osym.gov.tr/2026-dgs-tercihlerin-alinmasi",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 121560,
+    "sha256": "3d98f2a6c41e80f0844fdd4ffd0a882bc79bb0828516f52c1f7fdaecde6db513",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.osym.gov.tr/2026-dgs-tercihlerin-alinmasi"
+  },
+  "meb-home.html": {
+    "url": "https://www.meb.gov.tr/",
+    "final_url": "https://www.meb.gov.tr/",
+    "status": 200,
+    "content_type": "text/html",
+    "bytes": 104575,
+    "sha256": "3393958b697412f2c00596a4a9e934d3b7998e13dbe26505a49888549f0f584b",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.meb.gov.tr/"
+  },
+  "meb-list.html": {
+    "url": "https://www.meb.gov.tr/meb_duyuruindex.php",
+    "final_url": "https://www.meb.gov.tr/meb_duyuruindex.php",
+    "status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "bytes": 44902,
+    "sha256": "0984c8d368245c328b4cf0dc73a2637215f1889dc747d0f49d4fe60b9c81d1e3",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.meb.gov.tr/meb_duyuruindex.php"
+  },
+  "meb-detail.html": {
+    "url": "https://www.meb.gov.tr/okullarda-uyum-haftasi-basladi/haber/41823/tr",
+    "final_url": "https://www.meb.gov.tr/okullarda-uyum-haftasi-basladi/haber/41823/tr",
+    "status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "bytes": 52740,
+    "sha256": "5bd2f9ebf50f5f93f21ec35452de83acd49df639200bd4dafe7a4fba72681b94",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.meb.gov.tr/okullarda-uyum-haftasi-basladi/haber/41823/tr"
+  },
+  "yok-list.html": {
+    "url": "https://www.yok.gov.tr/tr/announcements",
+    "final_url": "https://www.yok.gov.tr/tr/announcements",
+    "status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "bytes": 241659,
+    "sha256": "b92f96e42463ea2f9b3f5e1ddc455d44fe4fd3a78c88433849ae638b29e79bfe",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.yok.gov.tr/tr/announcements"
+  },
+  "yok-detail.html": {
+    "url": "https://www.yok.gov.tr/tr/announcements/oncelikli-alanlardaki-doktora-programlarina-ogrenci-secme-sinavi-icin-basvurular-baslamistir-08092026-r6y6M",
+    "final_url": "https://www.yok.gov.tr/tr/announcements/oncelikli-alanlardaki-doktora-programlarina-ogrenci-secme-sinavi-icin-basvurular-baslamistir-08092026-r6y6M",
+    "status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "bytes": 165877,
+    "sha256": "b90580a01ebfa2d423ba431dae9b59f9c8f8ce1b5e412bd0396e1df8fa084768",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.yok.gov.tr/tr/announcements/oncelikli-alanlardaki-doktora-programlarina-ogrenci-secme-sinavi-icin-basvurular-baslamistir-08092026-r6y6M"
+  },
+  "gsb-list.html": {
+    "url": "https://kygm.gsb.gov.tr/Duyurular/",
+    "final_url": "https://kygm.gsb.gov.tr/Duyurular/",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 34496,
+    "sha256": "d1cb18221a6678660658124b89908f166893bceceee62bda3d9464d544f9658f",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://kygm.gsb.gov.tr/Duyurular/"
+  },
+  "gsb-detail.html": {
+    "url": "https://kygm.gsb.gov.tr/HaberDetaylari/1/10008/302886/yurt-basvuru-sonuclari-aciklandi.aspx",
+    "final_url": "https://kygm.gsb.gov.tr/HaberDetaylari/1/10008/302886/yurt-basvuru-sonuclari-aciklandi.aspx",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 38944,
+    "sha256": "8173b9e3154b9169977a1e1549e5eb41f7f56280ae6f2ab647f2f3ddcc3e7139",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://kygm.gsb.gov.tr/HaberDetaylari/1/10008/302886/yurt-basvuru-sonuclari-aciklandi.aspx"
+  },
+  "gsb-news.html": {
+    "url": "https://kygm.gsb.gov.tr/HaberListesi/1",
+    "final_url": "https://kygm.gsb.gov.tr/HaberListesi/1",
+    "status": 200,
+    "content_type": "text/html; charset=utf-8",
+    "bytes": 58404,
+    "sha256": "bc54b51caa690a7a3b1a1db978e31f68ac683763d81a0fa2f6ae78156d4cf3b1",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://kygm.gsb.gov.tr/HaberListesi/1"
+  },
+  "yokak-list.html": {
+    "url": "https://www.yokak.gov.tr/category/duyuru/",
+    "final_url": "https://www.yokak.gov.tr/category/duyuru/",
+    "status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "bytes": 371173,
+    "sha256": "d681958e4aca48bdabefc063cc73c9fac7109c6a246809409e637456404df217",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.yokak.gov.tr/category/duyuru/"
+  },
+  "yokak-detail.html": {
+    "url": "https://www.yokak.gov.tr/2026/08/07/2026-yokak-uluslararasi-kalite-guvencesi-ve-akreditasyon-konferansi-duyurusu/",
+    "final_url": "https://www.yokak.gov.tr/2026/08/07/2026-yokak-uluslararasi-kalite-guvencesi-ve-akreditasyon-konferansi-duyurusu/",
+    "status": 200,
+    "content_type": "text/html; charset=UTF-8",
+    "bytes": 358208,
+    "sha256": "d43aedbf5ec8223bc9a9ae73b43a7dd4cbb342e5c47e78958ee6ef34167d258d",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://www.yokak.gov.tr/2026/08/07/2026-yokak-uluslararasi-kalite-guvencesi-ve-akreditasyon-konferansi-duyurusu/"
+  },
+  "osym-guide.pdf": {
+    "url": "https://dokuman.osym.gov.tr/web//2026/8/basvuru-kilavuzu-ci4pae-27090228.pdf",
+    "final_url": "https://dokuman.osym.gov.tr/web//2026/8/basvuru-kilavuzu-ci4pae-27090228.pdf",
+    "status": 200,
+    "content_type": "application/pdf",
+    "bytes": 1821532,
+    "sha256": "06c9919887af2810a26e971a8b0f15792894f17281c478efdba720bca0a0954a",
+    "captured_at": "2026-09-08T19:30:00Z",
+    "capture_note": "Direct official response captured on 2026-09-08; timestamp rounded to research session. File bytes unchanged.",
+    "requested_url": "https://dokuman.osym.gov.tr/web//2026/8/basvuru-kilavuzu-ci4pae-27090228.pdf"
+  }
+}

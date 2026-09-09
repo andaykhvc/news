@@ -5,6 +5,7 @@ import {
   metadataSchema,
   parsedAttachmentSchema,
   timestampSchema,
+  type Coverage,
   type Source,
   type SourceEndpoint,
 } from '@sak/domain';
@@ -19,6 +20,7 @@ export interface AdapterError {
     | 'source_validation_failed';
   message: string;
   retryable: boolean;
+  retry_after_ms?: number;
 }
 export type AdapterResult<T> = Result<T, AdapterError>;
 export const discoveredDocumentSchema = z.object({
@@ -29,6 +31,7 @@ export const fetchedDocumentSchema = z.object({
   requested_url: httpUrlSchema,
   final_url: httpUrlSchema,
   body: z.string().min(1),
+  body_base64: z.string().optional(),
   mime_type: z.string().min(1),
   fetched_at: timestampSchema,
 });
@@ -69,6 +72,7 @@ export type ParseContext = Pick<
 // HTML adapters may use Cheerio; a browser transport can implement HttpClient later.
 export interface SourceAdapter {
   readonly sourceKey: string;
+  getCoverage?(): Coverage | null;
   discover(
     context: DiscoveryContext,
   ): Promise<AdapterResult<DiscoveredDocument[]>>;

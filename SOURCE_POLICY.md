@@ -4,7 +4,7 @@
 
 İlk aşamada kabul edilebilir kanıt kaynakları, **açıkça onaylanan `gov.tr` alan adlarıdır**. Herhangi bir `gov.tr` sitesi kendi başına güvenilir sayılmaz. Başlangıç verisinin tek düzenleme yeri `sources/registry.json`; veritabanı seed'i `pnpm seed:generate` ile üretilir. Çalışan işler güncel veritabanı kayıtlarını yükler.
 
-ÖSYM, MEB, YÖK, GSB ve YÖKAK kaynakları/alan adları `candidate` olarak eklenmiştir. Başlangıç seed'inde **uç nokta yoktur**. `www` dahil alt alan adları otomatik kabul edilmez. Her kurum birden fazla ayrı, onaylanmış alan adı ve uç noktaya sahip olabilir.
+ÖSYM, MEB, YÖK, GSB/KYGM ve YÖKAK için araştırılmış altı endpoint ve açık host kayıtları etkindir. Kararlar [uç nokta raporunda](docs/official-endpoints.md) belgelenmiştir. Eski çıplak alan adı kayıtları candidate kalır. `www` dahil alt alan adları otomatik kabul edilmez. Her kurum birden fazla ayrı, onaylanmış alan adı ve uç noktaya sahip olabilir.
 
 `candidate → active` operatörün araştırıp verdiği açık bir karardır. `disabled` geçici kapatma; `deprecated` artık kullanılmayan kaynak içindir. Yeni keşfedilen kaynaklar otomatik etkinleşmez. İşlem için kurum, uç nokta ve eşleşen alan adı etkin olmalıdır.
 
@@ -26,9 +26,9 @@ Kayıt defteri; yinelenen kimlik/slug/alan adı, yetim kayıt, kayıt dışı en
 
 Kaynak adaptörleri güvenilir uygulama kodudur; sandbox değildir. Veritabanı veya key almazlar. HTTP bağımlılığı enjekte edilir; retry/toplu kayıt işleri adaptörün dışındadır.
 
-Bu aşamada varsayılan canlı ağ taşıyıcısı yoktur. `createHttpClient` HTTPS/redirect, metin MIME türü, timeout ve yanıt boyutu sınırlarını sağlar; gerçek taşımayı çağıran kod verir. **Alan adı doğrulaması DNS güvenliği değildir.** İlk gerçek adaptörle birlikte private/link-local/reserved IP reddi, DNS rebinding koruması ve doğrulanan IP'ye sabitlenmiş bağlantı uygulanmalıdır. Browser adaptörü gerekirse istek ve alt kaynaklarında da aynı çıkış politikasını korumalıdır.
+`createHttpClient` HTTPS/redirect, MIME, timeout ve bayt sınırını uygular. `createPinnedTransport` DNS sonuçlarının tamamını özel/rezerve IP açısından denetler ve bağlantıyı doğrulanmış IP'ye sabitler. TLS orijinal hostname'i doğrular. Host başına pacing ve açık crawler User-Agent kullanılır. Retry-After sınırlı olarak dikkate alınır. Kayıt dışı redirect'e istek gönderilmez.
 
-Şimdiki metin taşıyıcısı PDF gibi binary içeriği reddeder. PDF'den çıkarılmış metne ait kanıt konumları, ham dosya hash'i ve binary saklama Prompt 2 işidir.
+PDF yanıtı ham baytlarıyla saklanır; signature/MIME, boyut, süre, sayfa ve metin limitleri ayrı parser tarafından kontrol edilir. OCR veya eksik içerik tahmini yoktur. Erişim engeli aşılmaz; MEB dinamik arşivi bu nedenle etkin değildir. Ağ kontrolleri process düzeyindedir; üretimde tek worker ile çalıştırılmalıdır.
 
 ## Tarihçe ve yayın
 

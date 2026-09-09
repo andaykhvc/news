@@ -4,46 +4,46 @@
       "id": "00000000-0000-4000-8000-000000000001",
       "slug": "osym",
       "name": "Ölçme, Seçme ve Yerleştirme Merkezi",
-      "status": "candidate",
+      "status": "active",
       "authority_type": "public_authority",
       "created_at": "2026-09-08T00:00:00Z",
-      "updated_at": "2026-09-08T00:00:00Z"
+      "updated_at": "2026-09-08T19:30:00Z"
     },
     {
       "id": "00000000-0000-4000-8000-000000000002",
       "slug": "meb",
       "name": "Millî Eğitim Bakanlığı",
-      "status": "candidate",
+      "status": "active",
       "authority_type": "public_authority",
       "created_at": "2026-09-08T00:00:00Z",
-      "updated_at": "2026-09-08T00:00:00Z"
+      "updated_at": "2026-09-08T19:30:00Z"
     },
     {
       "id": "00000000-0000-4000-8000-000000000003",
       "slug": "yok",
       "name": "Yükseköğretim Kurulu",
-      "status": "candidate",
+      "status": "active",
       "authority_type": "public_authority",
       "created_at": "2026-09-08T00:00:00Z",
-      "updated_at": "2026-09-08T00:00:00Z"
+      "updated_at": "2026-09-08T19:30:00Z"
     },
     {
       "id": "00000000-0000-4000-8000-000000000004",
       "slug": "gsb",
       "name": "Gençlik ve Spor Bakanlığı",
-      "status": "candidate",
+      "status": "active",
       "authority_type": "public_authority",
       "created_at": "2026-09-08T00:00:00Z",
-      "updated_at": "2026-09-08T00:00:00Z"
+      "updated_at": "2026-09-08T19:30:00Z"
     },
     {
       "id": "00000000-0000-4000-8000-000000000005",
       "slug": "yokak",
       "name": "Yükseköğretim Kalite Kurulu",
-      "status": "candidate",
+      "status": "active",
       "authority_type": "public_authority",
       "created_at": "2026-09-08T00:00:00Z",
-      "updated_at": "2026-09-08T00:00:00Z"
+      "updated_at": "2026-09-08T19:30:00Z"
     }
   ],
   "hosts": [
@@ -86,7 +86,134 @@
       "include_subdomains": false,
       "status": "candidate",
       "created_at": "2026-09-08T00:00:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000011",
+      "source_id": "00000000-0000-4000-8000-000000000001",
+      "hostname": "www.osym.gov.tr",
+      "include_subdomains": false,
+      "status": "active",
+      "created_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000012",
+      "source_id": "00000000-0000-4000-8000-000000000001",
+      "hostname": "dokuman.osym.gov.tr",
+      "include_subdomains": false,
+      "status": "active",
+      "created_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000013",
+      "source_id": "00000000-0000-4000-8000-000000000002",
+      "hostname": "www.meb.gov.tr",
+      "include_subdomains": false,
+      "status": "active",
+      "created_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000014",
+      "source_id": "00000000-0000-4000-8000-000000000003",
+      "hostname": "www.yok.gov.tr",
+      "include_subdomains": false,
+      "status": "active",
+      "created_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000015",
+      "source_id": "00000000-0000-4000-8000-000000000004",
+      "hostname": "kygm.gsb.gov.tr",
+      "include_subdomains": false,
+      "status": "active",
+      "created_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-9000-000000000016",
+      "source_id": "00000000-0000-4000-8000-000000000005",
+      "hostname": "www.yokak.gov.tr",
+      "include_subdomains": false,
+      "status": "active",
+      "created_at": "2026-09-08T19:30:00Z"
     }
   ],
-  "endpoints": []
+  "endpoints": [
+    {
+      "id": "00000000-0000-4000-a000-000000000001",
+      "source_id": "00000000-0000-4000-8000-000000000001",
+      "slug": "announcements",
+      "name": "Ölçme, Seçme ve Yerleştirme Merkezi resmî yayınları",
+      "base_url": "https://www.osym.gov.tr/Duyurular/Index",
+      "endpoint_type": "html_listing",
+      "status": "active",
+      "poll_interval_seconds": 3600,
+      "last_successful_check_at": null,
+      "created_at": "2026-09-08T19:30:00Z",
+      "updated_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-a000-000000000002",
+      "source_id": "00000000-0000-4000-8000-000000000002",
+      "slug": "announcements",
+      "name": "Millî Eğitim Bakanlığı resmî yayınları",
+      "base_url": "https://www.meb.gov.tr/",
+      "endpoint_type": "html_listing",
+      "status": "active",
+      "poll_interval_seconds": 3600,
+      "last_successful_check_at": null,
+      "created_at": "2026-09-08T19:30:00Z",
+      "updated_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-a000-000000000003",
+      "source_id": "00000000-0000-4000-8000-000000000003",
+      "slug": "announcements",
+      "name": "Yükseköğretim Kurulu resmî yayınları",
+      "base_url": "https://www.yok.gov.tr/tr/announcements",
+      "endpoint_type": "html_listing",
+      "status": "active",
+      "poll_interval_seconds": 3600,
+      "last_successful_check_at": null,
+      "created_at": "2026-09-08T19:30:00Z",
+      "updated_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-a000-000000000004",
+      "source_id": "00000000-0000-4000-8000-000000000004",
+      "slug": "announcements",
+      "name": "Gençlik ve Spor Bakanlığı resmî yayınları",
+      "base_url": "https://kygm.gsb.gov.tr/Duyurular/",
+      "endpoint_type": "html_listing",
+      "status": "active",
+      "poll_interval_seconds": 3600,
+      "last_successful_check_at": null,
+      "created_at": "2026-09-08T19:30:00Z",
+      "updated_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-a000-000000000005",
+      "source_id": "00000000-0000-4000-8000-000000000004",
+      "slug": "news",
+      "name": "Gençlik ve Spor Bakanlığı resmî yayınları",
+      "base_url": "https://kygm.gsb.gov.tr/HaberListesi/1",
+      "endpoint_type": "html_listing",
+      "status": "active",
+      "poll_interval_seconds": 3600,
+      "last_successful_check_at": null,
+      "created_at": "2026-09-08T19:30:00Z",
+      "updated_at": "2026-09-08T19:30:00Z"
+    },
+    {
+      "id": "00000000-0000-4000-a000-000000000006",
+      "source_id": "00000000-0000-4000-8000-000000000005",
+      "slug": "announcements",
+      "name": "Yükseköğretim Kalite Kurulu resmî yayınları",
+      "base_url": "https://www.yokak.gov.tr/category/duyuru/",
+      "endpoint_type": "html_listing",
+      "status": "active",
+      "poll_interval_seconds": 3600,
+      "last_successful_check_at": null,
+      "created_at": "2026-09-08T19:30:00Z",
+      "updated_at": "2026-09-08T19:30:00Z"
+    }
+  ]
 }

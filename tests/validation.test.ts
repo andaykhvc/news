@@ -72,16 +72,12 @@ describe('hostname trust', () => {
 });
 
 describe('source registry', () => {
-  it('seeds five candidates without endpoints or automatic subdomain trust', () => {
+  it('seeds reviewed sources and exact endpoints without automatic subdomain trust', () => {
     const initial = validateSourceRegistry(initialSourceRegistry);
     expect(initial.sources).toHaveLength(5);
-    expect(initial.endpoints).toEqual([]);
-    expect(initial.sources.every((s) => s.status === 'candidate')).toBe(true);
-    expect(
-      initial.hosts.every(
-        (h) => h.status === 'candidate' && !h.include_subdomains,
-      ),
-    ).toBe(true);
+    expect(initial.endpoints).toHaveLength(6);
+    expect(initial.sources.every((s) => s.status === 'active')).toBe(true);
+    expect(initial.hosts.every((h) => !h.include_subdomains)).toBe(true);
   });
   it('accepts a consistent registry', () =>
     expect(validateSourceRegistry(registry)).toEqual(registry));

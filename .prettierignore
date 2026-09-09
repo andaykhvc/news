@@ -6,3 +6,6 @@ coverage
 *.tsbuildinfo
 supabase/.temp
 apps/web/next-env.d.ts
+
+sources/education/fixtures/*.html
+sources/education/fixtures/*.pdf

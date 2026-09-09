@@ -18,6 +18,7 @@
     "@sak/shared": "workspace:*",
     "@sak/source-sdk": "workspace:*",
     "@sak/validation": "workspace:*",
+    "pdfjs-dist": "6.3.289",
     "zod": "4.5.4"
   }
 }
