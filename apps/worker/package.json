@@ -16,6 +16,7 @@
     "@sak/source-sdk": "workspace:*",
     "@sak/ingestion": "workspace:*",
     "@sak/database": "workspace:*",
-    "zod": "4.5.4"
+    "zod": "4.5.4",
+    "@sak/education": "workspace:*"
   }
 }

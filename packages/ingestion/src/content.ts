@@ -35,6 +35,9 @@ export function fingerprintDocument(
       parsed.document_type,
       parsed.published_at,
       attachments,
+      ...(parsed.metadata['structure']
+        ? [parsed.raw_text, parsed.metadata['structure']]
+        : []),
     ]),
   );
   return { normalizedText, contentHash };

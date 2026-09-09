@@ -12,6 +12,7 @@ import {
 const decimalSchema = z.string().regex(/^-?(?:0|[1-9]\d*)(?:\.\d+)?$/);
 export const factValueSchema = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('date'), value: dateSchema }),
+  z.strictObject({ type: z.literal('datetime'), value: timestampSchema }),
   z
     .strictObject({
       type: z.literal('date_range'),

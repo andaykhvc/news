@@ -45,7 +45,14 @@ export const documentAttachmentSchema = parsedAttachmentSchema.extend({
   document_id: idSchema,
   parent_document_version_id: idSchema,
   content_hash: contentHashSchema.nullable(),
-  status: z.enum(['discovered', 'fetched', 'parsed', 'failed', 'unsupported']),
+  status: z.enum([
+    'discovered',
+    'fetched',
+    'parsed',
+    'failed',
+    'unsupported',
+    'needs_review',
+  ]),
   metadata: metadataSchema,
 });
 export const persistedOutcomeSchema = z.enum([

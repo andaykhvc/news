@@ -11,6 +11,8 @@ import {
   fetchedDocumentSchema,
   parsedDocumentSchema,
   type AdapterContext,
+  type FetchedDocument,
+  type ParsedDocument,
   type AdapterError,
   type HttpClient,
   type SourceAdapter,
@@ -44,6 +46,13 @@ export async function ingestEndpoint(input: {
   now?: () => Date;
   signal?: AbortSignal;
   retry?: RetryPolicy;
+  onPersisted?: (item: {
+    fetched: FetchedDocument;
+    parsed: ParsedDocument;
+    persisted: PersistDocumentResult;
+    runId: string;
+    reportIssue: (url: string, error: AdapterError) => Promise<void>;
+  }) => Promise<void>;
 }): Promise<IngestionReport> {
   const { source, endpoint, adapter, repositories, logger } = input;
   const now = () => (input.now?.() ?? new Date()).toISOString();
@@ -131,6 +140,21 @@ export async function ingestEndpoint(input: {
     } else {
       const documents = z.array(z.unknown()).max(10_000).parse(discovery.value);
       statistics.documents_discovered = documents.length;
+      const discoveryProblems =
+        adapter
+          .getCoverage?.()
+          ?.reasons.filter(
+            (r) =>
+              !['document_limit', 'bounded_or_incomplete_discovery'].includes(
+                r,
+              ),
+          ) ?? [];
+      for (const reason of discoveryProblems)
+        await recordFailure(null, {
+          type: 'discovery_failed',
+          message: reason,
+          retryable: false,
+        });
       const seen = new Set<string>();
       const canonicalSeen = new Set<string>();
       for (const raw of documents) {
@@ -188,10 +212,23 @@ export async function ingestEndpoint(input: {
           const parsed = parsedDocumentSchema.parse(parsedResult.value);
           stage = 'source_validation_failed';
           parsed.canonical_url = ensureUrl(parsed.canonical_url);
-          parsed.attachments = parsed.attachments.map((attachment) => ({
-            ...attachment,
-            url: ensureUrl(attachment.url),
-          }));
+          const acceptedAttachments = [];
+          for (const attachment of parsed.attachments) {
+            try {
+              acceptedAttachments.push({
+                ...attachment,
+                url: ensureUrl(attachment.url),
+              });
+            } catch {
+              await recordFailure(attachment.url, {
+                type: 'source_validation_failed',
+                message:
+                  'Attachment host is not registered; parent document preserved',
+                retryable: false,
+              });
+            }
+          }
+          parsed.attachments = acceptedAttachments;
           if (canonicalSeen.has(parsed.canonical_url)) {
             outcomes.push({
               outcome: 'skipped',
@@ -216,6 +253,14 @@ export async function ingestEndpoint(input: {
               normalization_version: NORMALIZATION_VERSION,
             }),
           );
+          if (input.onPersisted)
+            await input.onPersisted({
+              fetched,
+              parsed,
+              persisted,
+              runId: run.id,
+              reportIssue: recordFailure,
+            });
           canonicalSeen.add(parsed.canonical_url);
           if (persisted.outcome !== 'unchanged') statistics.documents_changed++;
           outcomes.push({ ...persisted, url });

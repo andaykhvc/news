@@ -1,6 +1,6 @@
 # Kaynak adaptörü ekleme
 
-Bu klasörde canlı kurum crawler'ı yoktur. `registry.json` ilk aday kurum/alan adı paketidir; `fixtures/` ise yalnızca ağsız test verisidir. Sentetik fixture kayıtlarını resmî registry'ye veya production seed'ine eklemeyin.
+`education/` beş gerçek kurumun discovery/parse profillerini, ontology verisini ve doğrudan resmî yanıtlardan kaydedilen fixture'ları içerir. `registry.json` araştırılmış etkin kaynakları tanımlar; kökteki `fixtures/` ise eski sentetik demo verisidir. Sentetik fixture kayıtlarını resmî registry'ye veya production seed'ine eklemeyin.
 
 Gelecekte bir adapter `sources/<source-key>/` altında kendi `package.json`, `src/adapter.ts`, fixture dosyaları ve davranış testleriyle yer alabilir. `pnpm-workspace.yaml` bu paketleri kapsar.
 
@@ -11,7 +11,7 @@ Gelecekte bir adapter `sources/<source-key>/` altında kendi `package.json`, `sr
 5. Parse'ı kaydedilmiş fixture'larla test edin. Boş sonuç, değişmiş HTML, eksik tarih, redirect, attachment ve hatalı karakter kodlamasını kapsayın. Kaynakta bulunmayan tarihi/tutarı tahmin etmeyin.
 6. HTTP taşıyıcısında allowlist, her redirect için denetim, DNS/IP sabitleme, private IP reddi, limit ve cancellation uygulayın. İlk metin adaptöründe Cheerio kullanılabilir; Playwright yalnızca statik HTTP'nin yetersiz olduğu kanıtlanınca eklenir.
 7. Adapter'ı worker'ın adapter map'ine kaydedin. Persistence, retry, normalize/hash ve crawl sayaçlarını genel hatta bırakın.
-8. İkinci aşamada yayın servisi doğrulanmış document version'ı değerlendirir. Adapter doğrudan haber veya fact yayımlamaz.
+8. Ontology entity/topic/predicate ve bağlamsal authority kurallarını veri olarak tanımlayın. Genel extraction/validation hattı sürümlü belgeyi değerlendirir; adapter doğrudan fact veya haber yayımlamaz.
 
 SDK sözleşmesi:
 

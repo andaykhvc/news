@@ -54,15 +54,21 @@ describe('HTTP boundary', () => {
       value: { final_url: 'https://fixture.gov.tr/updated', body: 'Duyuru' },
     });
   });
-  it('rejects binary PDF content until a binary transport is implemented', async () => {
+  it('preserves binary PDF bytes for the bounded PDF parser', async () => {
     expect(
       await client(
         async () =>
-          new Response('pdf', {
+          new Response('%PDF-test', {
             headers: { 'content-type': 'application/pdf' },
           }),
       ).get('https://fixture.gov.tr/a.pdf'),
-    ).toMatchObject({ ok: false, error: { retryable: false } });
+    ).toMatchObject({
+      ok: true,
+      value: {
+        mime_type: 'application/pdf',
+        body_base64: Buffer.from('%PDF-test').toString('base64'),
+      },
+    });
   });
   it('enforces streamed size limits without a content-length header', async () => {
     expect(

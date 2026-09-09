@@ -1,0 +1,665 @@
+{
+  "version": "education-v1",
+  "entities": [
+    {
+      "key": "yks",
+      "name": "YKS",
+      "aliases": ["YKS", "Yükseköğretim Kurumları Sınavı"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "kpss",
+      "name": "KPSS",
+      "aliases": ["KPSS", "Kamu Personel Seçme Sınavı"],
+      "ambiguous_when": [
+        "ortaöğretim",
+        "ön lisans",
+        "önlisans",
+        "lisans",
+        "DHBT"
+      ]
+    },
+    {
+      "key": "ales",
+      "name": "ALES",
+      "aliases": ["ALES"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "dgs",
+      "name": "DGS",
+      "aliases": ["DGS", "Dikey Geçiş Sınavı"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "yds",
+      "name": "YDS",
+      "aliases": ["YDS"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "yokdil",
+      "name": "YÖKDİL",
+      "aliases": ["YÖKDİL"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "tus",
+      "name": "TUS",
+      "aliases": ["TUS"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "dus",
+      "name": "DUS",
+      "aliases": ["DUS"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "msu",
+      "name": "MSÜ",
+      "aliases": ["MSÜ"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "lgs",
+      "name": "LGS",
+      "aliases": ["LGS", "Liselere Geçiş Sistemi"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "transfer",
+      "name": "Yatay geçiş",
+      "aliases": ["yatay geçiş"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "registration",
+      "name": "Üniversite kayıt",
+      "aliases": ["üniversite kayıt", "kayıt"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "doctoral",
+      "name": "Doktora",
+      "aliases": ["doktora"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "school",
+      "name": "Okul takvimi",
+      "aliases": ["eğitim öğretim", "okul"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "dormitory",
+      "name": "KYK yurt",
+      "aliases": ["yurt", "KYK"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "scholarship",
+      "name": "Burs",
+      "aliases": ["burs", "öğrenim kredisi"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "accreditation",
+      "name": "Akreditasyon",
+      "aliases": ["akreditasyon", "YÖKAK"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "kpss_ortaogretim",
+      "name": "KPSS Ortaöğretim",
+      "aliases": ["Ortaöğretim"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "kpss_onlisans",
+      "name": "KPSS Ön Lisans",
+      "aliases": ["Ön Lisans", "Önlisans"],
+      "ambiguous_when": []
+    },
+    {
+      "key": "kpss_lisans",
+      "name": "KPSS Lisans",
+      "aliases": ["KPSS Lisans"],
+      "ambiguous_when": []
+    }
+  ],
+  "topics": [
+    {
+      "key": "education",
+      "name": "Eğitim",
+      "parent": null
+    },
+    {
+      "key": "education.exams",
+      "name": "Sınavlar",
+      "parent": "education"
+    },
+    {
+      "key": "education.school",
+      "name": "Okul",
+      "parent": "education"
+    },
+    {
+      "key": "education.higher_education",
+      "name": "Yükseköğretim",
+      "parent": "education"
+    },
+    {
+      "key": "education.student_support",
+      "name": "Öğrenci destekleri",
+      "parent": "education"
+    },
+    {
+      "key": "education.quality",
+      "name": "Kalite güvencesi",
+      "parent": "education"
+    }
+  ],
+  "predicates": [
+    {
+      "key": "preference_period",
+      "value_types": ["date_range"],
+      "cues": ["tercih işlemleri"],
+      "unit": null,
+      "lexicon": {}
+    },
+    {
+      "key": "application_period",
+      "value_types": ["date_range"],
+      "cues": ["başvuru tarihleri", "başvurular", "başvuruları"],
+      "unit": null,
+      "lexicon": {}
+    },
+    {
+      "key": "exam_date",
+      "value_types": ["date"],
+      "cues": ["sınav tarihi"],
+      "unit": null,
+      "lexicon": {}
+    },
+    {
+      "key": "registration_period",
+      "value_types": ["date_range"],
+      "cues": ["kayıt tarihleri", "kayıt işlemleri"],
+      "unit": null,
+      "lexicon": {}
+    },
+    {
+      "key": "application_fee",
+      "value_types": ["money"],
+      "cues": ["başvuru ücreti", "sınav ücreti"],
+      "unit": "TRY",
+      "lexicon": {}
+    },
+    {
+      "key": "quota",
+      "value_types": ["number"],
+      "cues": ["kontenjan"],
+      "unit": "person",
+      "lexicon": {}
+    },
+    {
+      "key": "results_status",
+      "value_types": ["status"],
+      "cues": ["sonuçları"],
+      "unit": null,
+      "lexicon": {
+        "announced": ["açıklandı"]
+      }
+    },
+    {
+      "key": "accreditation_status",
+      "value_types": ["status"],
+      "cues": ["akreditasyon"],
+      "unit": null,
+      "lexicon": {
+        "accredited": ["akredite edildi"]
+      }
+    },
+    {
+      "key": "eligibility",
+      "value_types": ["boolean"],
+      "cues": ["başvurabilir"],
+      "unit": null,
+      "lexicon": {
+        "true": ["başvurabilir"],
+        "false": ["başvuramaz"]
+      }
+    },
+    {
+      "key": "official_name",
+      "value_types": ["string"],
+      "cues": ["adı"],
+      "unit": null,
+      "lexicon": {}
+    },
+    {
+      "key": "application_url",
+      "value_types": ["url"],
+      "cues": ["başvuru"],
+      "unit": null,
+      "lexicon": {}
+    },
+    {
+      "key": "deadline_at",
+      "value_types": ["datetime"],
+      "cues": ["son başvuru"],
+      "unit": null,
+      "lexicon": {}
+    },
+    {
+      "key": "conditions",
+      "value_types": ["json"],
+      "cues": ["koşulları", "şartları"],
+      "unit": null,
+      "lexicon": {}
+    }
+  ],
+  "authorities": [
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "yks",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "kpss",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "ales",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "dgs",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "yds",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "yokdil",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "tus",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "dus",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "msu",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "meb",
+      "topic": "education.school",
+      "entity": "lgs",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "yok",
+      "topic": "education.higher_education",
+      "entity": "transfer",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "yok",
+      "topic": "education.higher_education",
+      "entity": "registration",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "yok",
+      "topic": "education.higher_education",
+      "entity": "doctoral",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "meb",
+      "topic": "education.school",
+      "entity": "school",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "gsb",
+      "topic": "education.student_support",
+      "entity": "dormitory",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "gsb",
+      "topic": "education.student_support",
+      "entity": "scholarship",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "yokak",
+      "topic": "education.quality",
+      "entity": "accreditation",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "kpss_ortaogretim",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "kpss_onlisans",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "kpss_lisans",
+      "predicates": [
+        "preference_period",
+        "application_period",
+        "exam_date",
+        "registration_period",
+        "application_fee",
+        "quota",
+        "results_status",
+        "accreditation_status",
+        "eligibility",
+        "official_name",
+        "application_url",
+        "deadline_at",
+        "conditions"
+      ]
+    }
+  ]
+}

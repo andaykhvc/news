@@ -64,3 +64,41 @@ export function validateFactPublication(input: {
   }
   return [...new Set(errors)];
 }
+
+/** Additional Phase 2 gate: callers must carry current document and monitored-source state. */
+export function validateCurrentEvidence(input: {
+  version: DocumentVersion;
+  currentVersionId: string | null;
+  lastObservedAt: string;
+  lastSuccessfulCheckAt: string | null;
+  coverage: { checked_at: string; reasons: readonly string[] } | null;
+  asOf: string;
+  maxAgeMs: number;
+}): string[] {
+  const reasons: string[] = [];
+  const now = Date.parse(input.asOf);
+  if (
+    !Number.isFinite(now) ||
+    !Number.isFinite(input.maxAgeMs) ||
+    input.maxAgeMs <= 0
+  )
+    return ['invalid_freshness_policy'];
+  if (input.currentVersionId !== input.version.id)
+    reasons.push('historical_document_version');
+  for (const at of [
+    input.lastObservedAt,
+    input.lastSuccessfulCheckAt,
+    input.coverage?.checked_at,
+  ]) {
+    const time = at ? Date.parse(at) : NaN;
+    if (!Number.isFinite(time) || time > now || now - time > input.maxAgeMs)
+      reasons.push('source_coverage_stale_or_unknown');
+  }
+  if (
+    input.coverage?.reasons.some(
+      (r) => !['document_limit', 'bounded_or_incomplete_discovery'].includes(r),
+    )
+  )
+    reasons.push('source_health_requires_review');
+  return [...new Set(reasons)];
+}
