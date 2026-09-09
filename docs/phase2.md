@@ -1,5 +1,7 @@
 # Prompt 2 teslim raporu
 
+> Bu belge Prompt 2 teslimini kaydeder. Güncel ürün durumu: [Prompt 3](phase3.md).
+
 9 Eylül 2026. Dal: `codex/education-ingestion`.
 
 ## Uygulanan hat

@@ -158,3 +158,12 @@ describe('evidence and publication prerequisites', () => {
     ).toContain('fact_not_verified');
   });
 });
+it('retains the six PostgreSQL legacy topic identities without accepting arbitrary malformed IDs', async () => {
+  const { idSchema } = await import('../packages/domain/src/index');
+  expect(
+    idSchema.safeParse('00000000-0000-4000-c000-000000000002').success,
+  ).toBe(true);
+  expect(
+    idSchema.safeParse('00000000-0000-4000-c000-000000000099').success,
+  ).toBe(false);
+});

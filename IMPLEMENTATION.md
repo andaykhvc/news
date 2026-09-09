@@ -1,5 +1,7 @@
 # Prompt 1 uygulama raporu
 
+> Bu belge önceki aşamanın tarihsel raporudur. Güncel ürün durumu: [Prompt 3](docs/phase3.md).
+
 Doğrulama tarihi: 8 Eylül 2026.
 
 ## Uygulanan temel

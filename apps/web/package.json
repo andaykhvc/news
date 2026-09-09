@@ -14,7 +14,11 @@
     "@sak/validation": "workspace:*",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "@sak/answers": "workspace:*",
+    "@sak/database": "workspace:*",
+    "zod": "4.5.4",
+    "server-only": "0.0.1"
   },
   "devDependencies": {
     "@types/react": "19.2.18",
