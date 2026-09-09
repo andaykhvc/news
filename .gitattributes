@@ -1,0 +1,4 @@
+# Official response fixtures are byte-exact audit artifacts. Never convert line
+# endings or show embedded/minified third-party scripts as source-code diffs.
+sources/education/fixtures/*.html -text -diff -whitespace
+sources/education/fixtures/*.pdf -text -diff -whitespace
