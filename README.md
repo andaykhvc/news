@@ -1,12 +1,12 @@
 # Şak Haber
 
-Şak Haber, doğrudan resmî `gov.tr` kaynaklarından belge toplar; değişmez sürümler, yapılandırılmış iddialar ve kesin kanıt konumları oluşturur. **Prompt 2: veri alımı ve doğrulama** uygulanmıştır. Son kullanıcı ekranı ve yayın deneyimi Prompt 3 kapsamındadır.
+Şak Haber, doğrudan resmî `gov.tr` kaynaklarından belge toplar; değişmez sürümler, yapılandırılmış iddialar ve kesin kanıt konumları oluşturur. **Prompt 3: Türkçe cevap ürünü** uygulanmıştır. Arama, kanıtlı cevaplar, yönetim ekranı ve kalıcı worker zamanlaması mevcut veri motorunun üzerindedir. [Mühendislik raporu ve üretime geçiş](docs/phase3.md).
 
 ```text
 SOURCE → DOCUMENT → DOCUMENT VERSION → FACT → EVIDENCE → ANSWER
 ```
 
-Ayrı backend API sunucusu yoktur. Next.js/Vercel web katmanı, PostgreSQL/Supabase ve tek çalıştırmalık Node.js worker kullanılır. Worker uzun süreli taramalar için Vercel sayfa isteğinin içinde çalıştırılmaz. LLM yalnızca aday çıkarır; doğrulama, yetki veya yayın kararı vermez.
+Ayrı backend API sunucusu yoktur. Next.js/Vercel web katmanı, PostgreSQL/Supabase ve Node.js worker kullanılır; tek seferlik CLI veya kalıcı zamanlayıcı olarak çalışır. Worker uzun süreli taramalar için Vercel sayfa isteğinin içinde çalıştırılmaz. LLM yalnızca aday çıkarır; doğrulama, yetki veya yayın kararı vermez.
 
 ## Başlangıç
 
@@ -15,6 +15,8 @@ Node.js 22.14+ (CI: 24), `pnpm 11.19.0`:
 ```sh
 pnpm install --frozen-lockfile
 pnpm check
+pnpm exec playwright install chromium
+pnpm test:e2e
 pnpm worker:demo
 pnpm worker --source osym --fixture osym-detail.html
 pnpm worker --source osym --fixture osym-guide.pdf
@@ -33,6 +35,7 @@ pnpm exec supabase start -x gotrue,realtime,storage-api,imgproxy,mailpit,postgre
 pnpm exec supabase migration up --local
 # Yeni kurulumda seed db reset tarafından uygulanır. Mevcut yerel veriyi koruyarak seed uygulamak için:
 docker exec -i supabase_db_sak-haber psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/seed.sql
+docker exec -i supabase_db_sak-haber psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/product-seed.sql
 ```
 
 `.env.example` içindeki sunucu değişkenlerini kökteki `.env` dosyasına doldurun. Anahtarlar `NEXT_PUBLIC_` değişkeni olamaz. Ortamı açıkça yükleyerek:
@@ -64,8 +67,26 @@ MEB dinamik duyuru arşivi erişimi reddettiği için etkin değildir; MEB ana s
 
 PDF dosyaları boyut/sayfa/süre sınırlarıyla ayrı worker thread içinde ayrıştırılır. Ham dosyalar SHA-256 ile PostgreSQL'de saklanır. OCR yoktur. Karmaşık tablolar, eksik yıllar, yerel saat için belirtilmeyen UTC offset'i ve desteklenmeyen yapılandırılmış değerler inceleme gerektirir. Çelişkiler açık operatör kararı olmadan çözülmez.
 
-Canlı LLM çağrısı, üretim zamanlayıcısı, yarım kalan iş kurtarma, ölçekli yük testi ve kullanıcıya açık yayın servisi bu teslimde etkinleştirilmemiştir. Prompt 3; yanıt/arama deneyimi, kullanıcı ekranları ve bu kontrolleri zorunlu kullanan yayın katmanını kuracaktır.
+Arama ve cevap üretiminde LLM yoktur. Opsiyonel LLM yalnızca worker içinde aday çıkarır. Üretimde yayın için kaynakların sağlıklı olması ve doğrulanmış fact'in yönetim kontrolünden geçmesi gerekir. Kalıcı kaynak işleri PostgreSQL lease ile yürür. Çok sunuculu ortak host hız sınırlaması ve ölçekli yük testi henüz yapılmamıştır.
 
 ## Vercel
 
-Framework: **Next.js**. Root Directory: **`apps/web`**. Build: `pnpm build`, çıktı dizini varsayılan. Monorepo kökündeki lockfile/workspace paketlerine erişim açık olmalıdır. `ENABLE_EXPERIMENTAL_COREPACK=1` sabit pnpm sürümünü kullanır. Web iskeleti veri toplama işi başlatmaz ve servis anahtarı gerektirmez.
+Framework: **Next.js**. Root Directory: **`apps/web`**. Build: `pnpm build`, çıktı dizini **`.next`**. `apps/web/vercel.json` framework ve çıktı ayarını açıkça sabitler. Monorepo kökündeki lockfile/workspace paketlerine erişim açık olmalıdır. `ENABLE_EXPERIMENTAL_COREPACK=1` sabit pnpm sürümünü kullanır. Web isteği veri toplama başlatmaz. Anahtarsız önizleme güvenli biçimde doğrulanmış cevap olmadığını gösterir; gerçek veriler için yalnızca sunucuda Supabase anahtarı gerekir. Üretimden önce `PUBLIC_SITE_URL` dahil ortamı [dağıtım rehberi](docs/deployment.md) ile doğrulayın.
+
+## Cevap ürünü ve işletim
+
+- `/`: Türkçe arama ve konu rehberi.
+- `/ara?q=...`: deterministik Türkçe normalizasyon; eş anlamlar aynı adrese gider.
+- `/yks/2026/ek-yerlestirme` gibi `/{konu}/{yıl}/{olay}`: cevap, durum, kurum, zaman, kanıt ve geçmiş.
+- `/admin`: imzalı, süreli operatör oturumu; sağlık, adaylar, kaynak hataları, inceleme ve yayın.
+- `/health`: veri erişimi ve kaynak güncelliği; gerçek bir hazır olma ölçümüdür.
+
+```sh
+pnpm worker:scheduler                    # Ortamı önceden yükleyin
+pnpm env:check -- --production          # Web üretim ayarları
+pnpm env:check -- --worker --production # Worker üretim ayarları
+pnpm data:check -- --offline            # Katalog / ontology uyumu
+pnpm data:check                         # Canlı DB üzerinde salt okunur cevap kontrolü
+```
+
+Worker Docker tanımı: `deploy/worker.Dockerfile`; başlatma ve gizli değişkenler: [docs/deployment.md](docs/deployment.md). Test verileri uygulamaya veya üretim seed'ine import edilmez.

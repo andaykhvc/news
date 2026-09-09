@@ -99,6 +99,41 @@ export interface Database {
     };
     Views: Record<string, never>;
     Functions: {
+      product_admin_snapshot: { Args: { p_before: string }; Returns: Json };
+      product_snapshot: {
+        Args: { p_entities: string[]; p_year: string };
+        Returns: Json;
+      };
+      search_answer_resources: { Args: { p_query: string }; Returns: Json };
+      consume_product_limit: {
+        Args: { p_key: string; p_limit: number; p_seconds: number };
+        Returns: boolean;
+      };
+      record_product_event: {
+        Args: { p_kind: string; p_key: string };
+        Returns: undefined;
+      };
+      claim_endpoint_job: { Args: Record<string, never>; Returns: Json };
+      finish_endpoint_job: {
+        Args: {
+          p_endpoint: string;
+          p_token: string;
+          p_success: boolean;
+          p_error: string;
+        };
+        Returns: boolean;
+      };
+      product_maintenance: { Args: Record<string, never>; Returns: undefined };
+      review_product_fact: {
+        Args: {
+          p_id: string;
+          p_expected_updated_at: string;
+          p_action: string;
+          p_reason: string;
+          p_reviewer: string;
+        };
+        Returns: undefined;
+      };
       archive_source_response: { Args: { p_input: Json }; Returns: undefined };
       record_extraction: { Args: { p_input: Json }; Returns: undefined };
       resolve_fact_correction: {

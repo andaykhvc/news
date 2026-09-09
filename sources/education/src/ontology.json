@@ -1,11 +1,16 @@
 {
-  "version": "education-v1",
+  "version": "education-v3",
   "entities": [
     {
       "key": "yks",
       "name": "YKS",
       "aliases": ["YKS", "Yükseköğretim Kurumları Sınavı"],
-      "ambiguous_when": []
+      "ambiguous_when": [
+        "ek yerleştirme",
+        "ek tercih",
+        "yerleştirme sonuç",
+        "yerlestirme sonuc"
+      ]
     },
     {
       "key": "kpss",
@@ -126,6 +131,25 @@
       "name": "KPSS Lisans",
       "aliases": ["KPSS Lisans"],
       "ambiguous_when": []
+    },
+    {
+      "key": "yks_ek_yerlestirme",
+      "name": "YKS ek yerleştirme",
+      "aliases": [
+        "YKS ek yerleştirme",
+        "YKS ek tercih",
+        "Yükseköğretim Kurumları Sınavı ek yerleştirme"
+      ],
+      "ambiguous_when": []
+    },
+    {
+      "key": "yks_yerlestirme",
+      "name": "YKS yerleştirme",
+      "aliases": [
+        "YKS yerleştirme",
+        "Yükseköğretim Kurumları Sınavı yerleştirme"
+      ],
+      "ambiguous_when": ["ek yerleştirme", "ek tercih"]
     }
   ],
   "topics": [
@@ -660,6 +684,24 @@
         "deadline_at",
         "conditions"
       ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "yks_ek_yerlestirme",
+      "predicates": [
+        "preference_period",
+        "results_status",
+        "application_fee",
+        "application_url",
+        "conditions"
+      ]
+    },
+    {
+      "source": "osym",
+      "topic": "education.exams",
+      "entity": "yks_yerlestirme",
+      "predicates": ["results_status", "registration_period"]
     }
   ]
 }

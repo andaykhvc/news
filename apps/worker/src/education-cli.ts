@@ -36,6 +36,7 @@ export async function runEducationCli() {
   const { values } = parseArgs({
     options: {
       source: { type: 'string' },
+      endpoint: { type: 'string' },
       fixture: { type: 'string' },
       version: { type: 'string' },
       candidates: { type: 'string' },
@@ -214,14 +215,17 @@ export async function runEducationCli() {
   const endpoints = registry.endpoints.filter(
     (e) =>
       e.status === 'active' &&
+      (!values.endpoint || e.id === values.endpoint) &&
       (values.source === 'all' ||
         registry.sources.find((s) => s.id === e.source_id)?.slug === key),
   );
+  if (values.endpoint && endpoints.length !== 1)
+    throw new Error('Scheduled endpoint is not active or registered');
   for (const endpoint of endpoints) {
     const source = registry.sources.find((s) => s.id === endpoint.source_id)!;
     const profile =
       educationProfiles[source.slug as keyof typeof educationProfiles];
-    if (!profile) continue;
+    if (!profile) throw new Error('No adapter for active source');
     const hosts = registry.hosts.filter((h) => h.source_id === source.id);
     const http = createHttpClient({
       sourceId: source.id,
@@ -355,7 +359,7 @@ export async function runEducationCli() {
           coverage,
         }),
       );
-      if (report.status === 'failed') process.exitCode = 1;
+      if (report.status !== 'success') process.exitCode = 1;
     } catch (e) {
       console.error(
         JSON.stringify({

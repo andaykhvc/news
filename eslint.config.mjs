@@ -9,13 +9,22 @@ export default tseslint.config(
       '**/dist/**',
       '**/coverage/**',
       '**/next-env.d.ts',
+      'artifacts/**',
+      'playwright-report/**',
+      'test-results/**',
     ],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
     files: ['**/*.mjs'],
-    languageOptions: { globals: { process: 'readonly', console: 'readonly' } },
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        globalThis: 'readonly',
+      },
+    },
   },
   {
     rules: {

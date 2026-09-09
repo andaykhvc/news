@@ -12,7 +12,7 @@
     "dev": "pnpm --filter @sak/web dev",
     "build": "pnpm -r build",
     "typecheck": "pnpm -r typecheck && tsc --noEmit -p tsconfig.tests.json",
-    "lint": "eslint . && node scripts/check-boundaries.mjs && pnpm seed:check",
+    "lint": "eslint . && node scripts/check-boundaries.mjs && pnpm seed:check && pnpm data:check --offline",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "vitest run",
@@ -23,12 +23,17 @@
     "db:reset": "supabase db reset",
     "db:lint": "supabase db lint --local",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
-    "seed:generate": "node scripts/generate-seed.mjs",
-    "seed:check": "node scripts/generate-seed.mjs --check"
+    "seed:generate": "node scripts/generate-seed.mjs && tsx scripts/generate-product-seed.ts",
+    "seed:check": "node scripts/generate-seed.mjs --check && tsx scripts/generate-product-seed.ts --check",
+    "test:e2e": "playwright test",
+    "worker:scheduler": "pnpm --filter @sak/worker start --scheduler",
+    "env:check": "tsx scripts/check-environment.ts",
+    "data:check": "tsx scripts/check-answer-data.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",
     "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
     "@types/node": "26.5.0",
     "eslint": "10.10.0",
     "prettier": "3.9.6",
