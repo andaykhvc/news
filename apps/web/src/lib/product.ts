@@ -3,6 +3,7 @@ import { cache } from 'react';
 import {
   createDatabaseClient,
   databaseEnvironmentSchema,
+  listRecentOfficialAnnouncements,
   loadAnswerSnapshot,
 } from '@sak/database';
 import {
@@ -53,6 +54,16 @@ export const snapshotForGroup = cache(async (group: string, year: number) => {
   }
 });
 export const snapshotForYear = (year: number) => snapshotForGroup('*', year);
+export const recentOfficialAnnouncements = cache(async () => {
+  const client = database();
+  if (!client) return [];
+  try {
+    return await listRecentOfficialAnnouncements(client);
+  } catch {
+    console.error('official_announcements_unavailable');
+    return [];
+  }
+});
 export const answerFor = cache(
   async (resource: AnswerResource, year: number) => {
     const result = await snapshotForGroup(resource.group, year);
