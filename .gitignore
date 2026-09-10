@@ -13,3 +13,4 @@ supabase/.branches/
 artifacts/
 playwright-report/
 test-results/
+.vercel
