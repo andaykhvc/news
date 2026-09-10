@@ -16,6 +16,13 @@ import {
 } from '@sak/ingestion';
 import type { DatabaseClient } from './client';
 
+/**
+ * `postgres` serializes object parameters as JSON values. Passing a pre-encoded
+ * JSON string would instead become a JSON *string* (for example `"{}"`), which
+ * violates the object-only JSONB columns in the schema.
+ */
+const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as unknown;
+
 export interface FactRepository {
   findById(id: string): Promise<Fact | null>;
   listEvidence(factId: string): Promise<FactEvidence[]>;
@@ -55,7 +62,7 @@ export function createRepositories(
           (
             await client.query<{ result: unknown }>(
               'select persist_ingested_document($1::jsonb) result',
-              [JSON.stringify(payload)],
+              [json(payload)],
             )
           )[0]?.result,
         );
@@ -83,7 +90,7 @@ export function createRepositories(
             error.message,
             error.retryable,
             error.created_at,
-            JSON.stringify(error.metadata),
+            json(error.metadata),
           ],
         );
       },
@@ -133,7 +140,7 @@ export function createRepositories(
             fact.id,
             fact.subject_entity_id,
             fact.predicate,
-            JSON.stringify(fact.value),
+            json(fact.value),
             fact.unit,
             fact.authority_source_id,
             fact.topic_id,
@@ -160,7 +167,7 @@ export function createRepositories(
             evidence.fact_id,
             evidence.document_version_id,
             evidence.evidence_text,
-            JSON.stringify(evidence.evidence_locator),
+            json(evidence.evidence_locator),
             evidence.created_at,
           ],
         );

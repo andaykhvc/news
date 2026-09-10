@@ -38,35 +38,33 @@ export function createKnowledgeRepository(
     async recordExtraction(record) {
       try {
         await client.query('select record_extraction($1::jsonb)', [
-          JSON.stringify(json(record)),
+          json(record),
         ]);
       } catch (cause) {
         const error =
           'database_validation_failed: ' +
           (cause instanceof Error ? cause.message : 'unknown');
         await client.query('select record_extraction($1::jsonb)', [
-          JSON.stringify(
-            json({
-              ...record,
-              status: 'failed',
-              error,
-              results: record.results.map((r) => ({
-                ...r,
-                decision: {
-                  status: 'needs_review',
-                  validator_version: 'grounding-v1',
-                  reasons: [error],
-                },
-              })),
-            }),
-          ),
+          json({
+            ...record,
+            status: 'failed',
+            error,
+            results: record.results.map((r) => ({
+              ...r,
+              decision: {
+                status: 'needs_review',
+                validator_version: 'grounding-v1',
+                reasons: [error],
+              },
+            })),
+          }),
         ]);
         throw new Error(error, { cause });
       }
     },
     async archive(input) {
       await client.query('select archive_source_response($1::jsonb)', [
-        JSON.stringify(json(input)),
+        json(input),
       ]);
     },
     async recordCoverage(runId, coverage) {
@@ -77,9 +75,9 @@ export function createKnowledgeRepository(
           coverage.checked_at,
           coverage.scope,
           coverage.complete,
-          JSON.stringify(json(coverage.pages)),
+          json(coverage.pages),
           coverage.discovered,
-          JSON.stringify(json(coverage.reasons)),
+          json(coverage.reasons),
         ],
       );
     },
