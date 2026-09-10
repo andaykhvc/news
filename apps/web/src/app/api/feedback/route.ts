@@ -27,11 +27,12 @@ export async function POST(request: Request) {
   if (!key || typeof kind !== 'string')
     return new Response('Kaydedilebilir bir konu bulunamadı.', { status: 400 });
   const client = database();
-  const result = await client
-    ?.rpc('record_product_event', { p_kind: kind, p_key: key })
-    .abortSignal(AbortSignal.timeout(3000));
-  if (!result || result.error)
+  if (!client) return new Response('Bildirim kaydedilemedi.', { status: 503 });
+  try {
+    await client.query('select record_product_event($1,$2)', [kind, key]);
+  } catch {
     return new Response('Bildirim kaydedilemedi.', { status: 503 });
+  }
   return new NextResponse(null, {
     status: 303,
     headers: { Location: '/tesekkurler' },

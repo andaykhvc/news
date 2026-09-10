@@ -187,11 +187,6 @@ end;
 $$;
 do $$ declare name text;begin
  foreach name in array array['source_artifacts','source_responses','extraction_attempts','candidate_validations','source_coverage','fact_resolutions'] loop
- execute format('alter table public.%I enable row level security',name);
- execute format('revoke all on public.%I from public,anon,authenticated,service_role',name);
- execute format('grant select,insert on public.%I to service_role',name);
  execute format('create trigger %I before update or delete on public.%I for each row execute function public.reject_history_mutation()',name||'_immutable',name);
  end loop;
 end $$;
-revoke all on function public.trusted_source_url(text,uuid),public.utf16_slice(text,integer,integer),public.archive_source_response(jsonb),public.record_extraction(jsonb),public.resolve_fact_correction(uuid,uuid,text,text) from public,anon,authenticated;
-grant execute on function public.trusted_source_url(text,uuid),public.utf16_slice(text,integer,integer),public.archive_source_response(jsonb),public.record_extraction(jsonb),public.resolve_fact_correction(uuid,uuid,text,text) to service_role;

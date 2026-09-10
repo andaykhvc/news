@@ -26,29 +26,24 @@ export async function POST(request: Request) {
     if (input.action === 'correct') {
       if (!input.replacement)
         return new Response('Yeni fact gerekli', { status: 400 });
-      const result = await client.rpc('resolve_fact_correction', {
-        p_old: input.id,
-        p_new: input.replacement,
-        p_reason: input.reason,
-        p_reviewer: reviewer,
-      });
-      if (result.error) throw new Error('Correction rejected');
+      await client.query(
+        'select resolve_fact_correction($1::uuid,$2::uuid,$3,$4)',
+        [input.id, input.replacement, input.reason, reviewer],
+      );
     } else {
       if (!input.updated_at || !Number.isFinite(Date.parse(input.updated_at)))
         return new Response('Sürüm gerekli', { status: 400 });
       if (input.action === 'publish') {
-        const row = await client
-          .from('facts')
-          .select('*')
-          .eq('id', input.id)
-          .single();
+        const row = await client.query<{ reference_period: string | null }>(
+          'select reference_period from facts where id=$1::uuid',
+          [input.id],
+        );
         if (
-          row.error ||
-          !row.data.reference_period ||
-          !/^\d{4}$/.test(row.data.reference_period)
+          !row[0]?.reference_period ||
+          !/^\d{4}$/.test(row[0].reference_period)
         )
           throw new Error('Fact missing');
-        const year = Number(row.data.reference_period);
+        const year = Number(row[0].reference_period);
         const snapshot = await loadAnswerSnapshot(
           client,
           answerResources.map((r) => r.entity),
@@ -78,14 +73,10 @@ export async function POST(request: Request) {
         if (resolved.factId !== fact.id || resolved.stale)
           throw new Error('Publication gates failed');
       }
-      const result = await client.rpc('review_product_fact', {
-        p_id: input.id,
-        p_expected_updated_at: input.updated_at,
-        p_action: input.action,
-        p_reason: input.reason,
-        p_reviewer: reviewer,
-      });
-      if (result.error) throw new Error('Review rejected');
+      await client.query(
+        'select review_product_fact($1::uuid,$2::timestamptz,$3,$4,$5)',
+        [input.id, input.updated_at, input.action, input.reason, reviewer],
+      );
     }
     return new NextResponse(null, {
       status: 303,

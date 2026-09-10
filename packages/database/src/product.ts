@@ -9,11 +9,11 @@ export async function loadAnswerSnapshot(
   entities: string[],
   year: number,
 ): Promise<AnswerSnapshot> {
-  const { data, error } = await client
-    .rpc('product_snapshot', { p_entities: entities, p_year: String(year) })
-    .abortSignal(AbortSignal.timeout(5000));
-  if (error) throw new Error('Answer data unavailable');
-  const snapshot = answerSnapshotSchema.parse(data);
+  const rows = await client.query<{ data: unknown }>(
+    'select product_snapshot($1::text[],$2::text) data',
+    [entities, String(year)],
+  );
+  const snapshot = answerSnapshotSchema.parse(rows[0]?.data);
   const history = new Map<string, AnswerSnapshot['history'][number]>();
   for (const entry of [
     ...snapshot.facts.flatMap(factHistory),

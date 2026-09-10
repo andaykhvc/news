@@ -2,7 +2,7 @@
 
 ## Çalışan sınır
 
-Prompt 2; resmî kaynak keşfi, sürümlü belge arşivi, yapılandırılmış aday çıkarımı, deterministik doğrulama, fact/evidence kayıtları ve inceleme durumunu uygular. Next.js, PostgreSQL/Supabase ve kısa ömürlü Node.js worker vardır; ayrı backend API veya mesaj broker'ı yoktur. Prompt 3, bu hattın üzerinde `@sak/answers`, Türkçe SSR ekranları, kontrollü yayın ve kalıcı worker işleri kurar. Eski `answer_pages` tabloları korunmuştur; kanonik kaynak kimliği katalogda, gerçek cevap ise anlık doğrulanmış projeksiyondur.
+Prompt 2; resmî kaynak keşfi, sürümlü belge arşivi, yapılandırılmış aday çıkarımı, deterministik doğrulama, fact/evidence kayıtları ve inceleme durumunu uygular. Next.js, PostgreSQL ve kısa ömürlü Node.js worker vardır; ayrı backend API veya mesaj broker'ı yoktur. Prompt 3, bu hattın üzerinde `@sak/answers`, Türkçe SSR ekranları, kontrollü yayın ve kalıcı worker işleri kurar. Eski `answer_pages` tabloları korunmuştur; kanonik kaynak kimliği katalogda, gerçek cevap ise anlık doğrulanmış projeksiyondur.
 
 ```text
 SOURCE → DOCUMENT → DOCUMENT VERSION → FACT → EVIDENCE → ANSWER
@@ -18,12 +18,12 @@ SOURCE → DOCUMENT → DOCUMENT VERSION → FACT → EVIDENCE → ANSWER
 | source-sdk | Adaptör sözleşmesi, HTML yapı koruma, sınırlı sayfalama, DNS/IP sabit HTTP       | domain, shared, validation             |
 | ingestion  | Hash/sürümleme, retry, PDF, provider sözleşmesi, doğrulama orkestrasyonu, sağlık | domain, shared, validation, source-sdk |
 | answers    | Türkçe intent, kanonik kaynaklar, yetki/zaman/kanıt/sağlık çözümü                | domain, validation                     |
-| database   | Repository portları, Supabase erişimi ve atomik SQL RPC'leri                     | domain, ingestion, answers             |
+| database   | Repository portları, PostgreSQL erişimi ve atomik SQL fonksiyonları              | domain, ingestion, answers             |
 | education  | Beş kurumun selector profilleri ve veri odaklı ontology                          | domain, source-sdk                     |
 | worker     | CLI, sağlayıcı/adapter/repository birleşimi                                      | Uygulama paketleri ve education        |
 | web        | Next.js SSR cevap ve yönetim ürünü                                               | domain, validation                     |
 
-Ingestion veritabanı paketini import etmez. Kurum seçicileri ve eğitim yetki kuralları yalnızca `sources/education` içindedir. Domain ağ/React/Supabase bilmez. Workspace paketleri özel TypeScript kaynak paketleridir; worker `tsx`, Next.js transpilation kullanır. `check-boundaries.mjs` bağımlılık yönlerini denetler.
+Ingestion veritabanı paketini import etmez. Kurum seçicileri ve eğitim yetki kuralları yalnızca `sources/education` içindedir. Domain ağ/React/PostgreSQL sürücüsü bilmez. Workspace paketleri özel TypeScript kaynak paketleridir; worker `tsx`, Next.js transpilation kullanır. `check-boundaries.mjs` bağımlılık yönlerini denetler.
 
 ## Veri ve kanıt hattı
 

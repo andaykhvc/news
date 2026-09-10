@@ -24,4 +24,4 @@ import type { SourceAdapter } from '@sak/source-sdk';
 type InstitutionAdapter = SourceAdapter;
 ```
 
-Adaptöre Supabase client veya sunucu anahtarı verilmez. Adaptör kaynak metnini parse eder; persist ve publication ayrı uygulama sorumluluklarıdır.
+Adaptöre veritabanı istemcisi veya sunucu sırrı verilmez. Adaptör kaynak metnini parse eder; persist ve publication ayrı uygulama sorumluluklarıdır.

@@ -3,21 +3,19 @@ import { environmentProblems } from '../packages/shared/src/index';
 it('fails production configuration without exposing any value', () => {
   const errors = environmentProblems(
     {
-      SUPABASE_URL: 'http://insecure.example',
-      SUPABASE_SERVICE_ROLE_KEY: 'private-value',
-      NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY: 'secret',
+      DATABASE_URL: 'postgresql://app:private-value@db.example/sak_haber',
+      NEXT_PUBLIC_ADMIN_SESSION_SECRET: 'secret',
     },
     'worker',
     true,
   );
   expect(errors.some((e) => e.includes('must never be public'))).toBe(true);
-  expect(errors.some((e) => e.includes('HTTPS'))).toBe(true);
+  expect(errors.some((e) => e.includes('complete PostgreSQL'))).toBe(false);
   expect(errors.join()).not.toContain('private-value');
 });
 it('allows optional extraction to be disabled but rejects half configuration', () => {
   const env = {
-    SUPABASE_URL: 'https://db.example',
-    SUPABASE_SERVICE_ROLE_KEY: 'private-value',
+    DATABASE_URL: 'postgresql://app:private-value@db.example/sak_haber',
   };
   expect(environmentProblems(env, 'worker', true)).toEqual([]);
   expect(

@@ -43,21 +43,17 @@ export async function runScheduler() {
     do {
       if (Date.now() - lastMaintenance > 3600000) {
         lastMaintenance = Date.now();
-        const result = await client
-          .rpc('product_maintenance', {})
-          .abortSignal(AbortSignal.timeout(10000));
-        if (result.error) throw new Error('Scheduled maintenance failed');
+        await client.query('select product_maintenance()');
       }
-      const claim = await client
-        .rpc('claim_endpoint_job', {})
-        .abortSignal(AbortSignal.timeout(10000));
-      if (claim.error) throw new Error('Could not claim worker job');
-      if (!claim.data) {
+      const claim = await client.query<{ job: unknown }>(
+        'select claim_endpoint_job() job',
+      );
+      if (!claim[0]?.job) {
         if (once) return;
         await delay(15000);
         continue;
       }
-      const job = jobSchema.parse(claim.data);
+      const job = jobSchema.parse(claim[0].job);
       const success = await new Promise<boolean>((resolve) => {
         const args = [
           '--import',
@@ -96,25 +92,21 @@ export async function runScheduler() {
           resolve(code === 0);
         });
       });
-      const done = await client
-        .rpc('finish_endpoint_job', {
-          p_endpoint: job.endpoint_id,
-          p_token: job.token,
-          p_success: success,
-          p_error: success
-            ? ''
-            : 'crawl_failed_or_timed_out; inspect crawl_errors',
-        })
-        .abortSignal(AbortSignal.timeout(10000));
-      if (done.error || !done.data)
+      const done = await client.query<{ done: boolean }>(
+        'select finish_endpoint_job($1::uuid,$2::uuid,$3,$4) done',
+        [
+          job.endpoint_id,
+          job.token,
+          success,
+          success ? '' : 'crawl_failed_or_timed_out; inspect crawl_errors',
+        ],
+      );
+      if (done[0]?.done !== true)
         console.error('Job completion rejected; lease may have expired');
       if (once) return;
     } while (!stopping);
   }
-  const maintenance = await client
-    .rpc('product_maintenance', {})
-    .abortSignal(AbortSignal.timeout(10000));
-  if (maintenance.error) throw new Error('Product maintenance failed');
+  await client.query('select product_maintenance()');
   const results = await Promise.allSettled(
     Array.from({ length: concurrency }, () =>
       lane().catch((error: unknown) => {

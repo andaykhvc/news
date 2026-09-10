@@ -102,7 +102,7 @@ insertRows(
 );
 if (sql.includes("'undefined'"))
   throw new Error('Unresolved registry / ontology mapping');
-const target = new URL('../supabase/seed.sql', import.meta.url);
+const target = new URL('../database/seed.sql', import.meta.url);
 if (process.argv.includes('--check')) {
   if (readFileSync(target, 'utf8') !== sql)
     throw new Error('Seed differs from registry; run pnpm seed:generate');

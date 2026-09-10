@@ -27,19 +27,25 @@ export default async function Results({
   const suggestions = [...result.suggestions];
   const client = database();
   if (client && result.normalized.length >= 3) {
-    const lookup = await client
-      .rpc('search_answer_resources', { p_query: result.normalized })
-      .abortSignal(AbortSignal.timeout(2000));
-    if (!lookup.error && Array.isArray(lookup.data))
-      for (const row of lookup.data) {
-        if (row && typeof row === 'object' && !Array.isArray(row)) {
-          const resource = answerResources.find(
-            (r) => r.key === row['resource_key'],
-          );
-          if (resource && !suggestions.includes(resource))
-            suggestions.push(resource);
+    try {
+      const lookup = await client.query<{ matches: unknown }>(
+        'select search_answer_resources($1) matches',
+        [result.normalized],
+      );
+      const matches = lookup[0]?.matches;
+      if (Array.isArray(matches))
+        for (const row of matches) {
+          if (row && typeof row === 'object' && !Array.isArray(row)) {
+            const resource = answerResources.find(
+              (r) => r.key === row['resource_key'],
+            );
+            if (resource && !suggestions.includes(resource))
+              suggestions.push(resource);
+          }
         }
-      }
+    } catch {
+      // Deterministic aliases already provide the safe fallback.
+    }
   }
   return (
     <section className="wrap narrow search-results">

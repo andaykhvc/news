@@ -6,7 +6,7 @@
 SOURCE → DOCUMENT → DOCUMENT VERSION → FACT → EVIDENCE → ANSWER
 ```
 
-Ayrı backend API sunucusu yoktur. Next.js/Vercel web katmanı, PostgreSQL/Supabase ve Node.js worker kullanılır; tek seferlik CLI veya kalıcı zamanlayıcı olarak çalışır. Worker uzun süreli taramalar için Vercel sayfa isteğinin içinde çalıştırılmaz. LLM yalnızca aday çıkarır; doğrulama, yetki veya yayın kararı vermez.
+Ayrı backend API sunucusu yoktur. Next.js/Vercel web katmanı, PostgreSQL ve Node.js worker kullanılır; tek seferlik CLI veya kalıcı zamanlayıcı olarak çalışır. Worker uzun süreli taramalar için Vercel sayfa isteğinin içinde çalıştırılmaz. LLM yalnızca aday çıkarır; doğrulama, yetki veya yayın kararı vermez.
 
 ## Başlangıç
 
@@ -28,14 +28,10 @@ pnpm dev
 
 ## Docker ve kalıcı kayıt
 
-Yerel proje `sak-haber`, API portu **56321**, PostgreSQL portu **56322**. Başka projelerin Docker hizmetlerini etkilemez.
+Vercel Marketplace'ten bağlanan PostgreSQL sağlayıcısının pooled bağlantı adresini tek `DATABASE_URL` değişkeni olarak Vercel'e ve worker'a ekleyin.
 
 ```sh
-pnpm exec supabase start -x gotrue,realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
-pnpm exec supabase migration up --local
-# Yeni kurulumda seed db reset tarafından uygulanır. Mevcut yerel veriyi koruyarak seed uygulamak için:
-docker exec -i supabase_db_sak-haber psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/seed.sql
-docker exec -i supabase_db_sak-haber psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/product-seed.sql
+DATABASE_URL='postgresql://...' pnpm db:migrate
 ```
 
 `.env.example` içindeki sunucu değişkenlerini kökteki `.env` dosyasına doldurun. Anahtarlar `NEXT_PUBLIC_` değişkeni olamaz. Ortamı açıkça yükleyerek:
@@ -50,14 +46,13 @@ pnpm --filter @sak/worker exec tsx --env-file=../../.env src/main.ts --version V
 
 ## Komutlar
 
-| Komut                                                      | İşlev                                                                   |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `pnpm check`                                               | Biçim, lint, paket sınırları, strict tipler, testler, üretim derlemesi  |
-| `pnpm worker --help`                                       | CLI seçenekleri                                                         |
-| `pnpm worker --source all --max-pages 1 --max-documents 1` | Beş kuruma ait altı uç noktada sınırlı dry run                          |
-| `pnpm seed:generate`                                       | Registry ve eğitim ontolojisinden seed üretir                           |
-| `pnpm db:lint`                                             | Yerel PostgreSQL fonksiyonlarını denetler                               |
-| `pnpm db:reset`                                            | **Bu yerel projenin verilerini siler**; normal güncellemede kullanılmaz |
+| Komut                                                      | İşlev                                                                  |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `pnpm check`                                               | Biçim, lint, paket sınırları, strict tipler, testler, üretim derlemesi |
+| `pnpm worker --help`                                       | CLI seçenekleri                                                        |
+| `pnpm worker --source all --max-pages 1 --max-documents 1` | Beş kuruma ait altı uç noktada sınırlı dry run                         |
+| `pnpm seed:generate`                                       | Registry ve eğitim ontolojisinden seed üretir                          |
+| `pnpm db:migrate`                                          | PostgreSQL migration ve güvenli katalog seed'ini uygular               |
 
 ## Kaynaklar ve sınırlar
 
@@ -71,7 +66,7 @@ Arama ve cevap üretiminde LLM yoktur. Opsiyonel LLM yalnızca worker içinde ad
 
 ## Vercel
 
-Framework: **Next.js**. Root Directory: **`apps/web`**. Build: `pnpm build`, çıktı dizini **`.next`**. `apps/web/vercel.json` framework ve çıktı ayarını açıkça sabitler. Monorepo kökündeki lockfile/workspace paketlerine erişim açık olmalıdır. `ENABLE_EXPERIMENTAL_COREPACK=1` sabit pnpm sürümünü kullanır. Web isteği veri toplama başlatmaz. Anahtarsız önizleme güvenli biçimde doğrulanmış cevap olmadığını gösterir; gerçek veriler için yalnızca sunucuda Supabase anahtarı gerekir. Üretimden önce `PUBLIC_SITE_URL` dahil ortamı [dağıtım rehberi](docs/deployment.md) ile doğrulayın.
+Framework: **Next.js**. Root Directory: **`apps/web`**. Build: `pnpm build`, çıktı dizini **`.next`**. `apps/web/vercel.json` framework ve çıktı ayarını açıkça sabitler. Monorepo kökündeki lockfile/workspace paketlerine erişim açık olmalıdır. `ENABLE_EXPERIMENTAL_COREPACK=1` sabit pnpm sürümünü kullanır. Web isteği veri toplama başlatmaz. Anahtarsız önizleme güvenli biçimde doğrulanmış cevap olmadığını gösterir; gerçek veriler için yalnızca sunucuda `DATABASE_URL` gerekir. Üretimden önce `PUBLIC_SITE_URL` dahil ortamı [dağıtım rehberi](docs/deployment.md) ile doğrulayın.
 
 ## Cevap ürünü ve işletim
 

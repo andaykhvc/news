@@ -30,13 +30,10 @@ let parsed: ParsedDocument;
 let clock = Date.parse('2026-09-08T00:00:00Z');
 beforeAll(async () => {
   db = new PGlite();
-  await db.exec(
-    'create role anon;create role authenticated;create role service_role bypassrls;',
-  );
   for (const name of [
-    'supabase/migrations/20260908184053_foundation.sql',
-    'supabase/migrations/20260908193230_education_ingestion_verification.sql',
-    'supabase/seed.sql',
+    'database/migrations/20260908184053_foundation.sql',
+    'database/migrations/20260908193230_education_ingestion_verification.sql',
+    'database/seed.sql',
   ])
     await db.exec(
       await readFile(new URL('../' + name, import.meta.url), 'utf8'),
@@ -258,7 +255,7 @@ it('requires exact registered official hosts when archiving response bytes', asy
     ]),
   ).rejects.toThrow('Untrusted');
 });
-it('keeps audit records immutable and denies browser roles', async () => {
+it('keeps audit records immutable', async () => {
   for (const table of [
     'source_artifacts',
     'source_responses',
@@ -266,15 +263,6 @@ it('keeps audit records immutable and denies browser roles', async () => {
     'candidate_validations',
   ])
     await expect(db.query(`delete from ${table}`)).rejects.toThrow('immutable');
-  await db.exec('begin;set local role anon;');
-  await expect(db.query('select * from candidate_validations')).rejects.toThrow(
-    'permission denied',
-  );
-  await db.exec('rollback');
-  const r = await db.query<{ enabled: boolean }>(
-    "select bool_and(relrowsecurity) enabled from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and relkind='r'",
-  );
-  expect(r.rows[0]?.enabled).toBe(true);
 });
 
 it('requires an audit record for direct SQL verification', async () => {

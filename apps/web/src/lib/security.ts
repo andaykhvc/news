@@ -74,12 +74,13 @@ export async function rateLimit(request: Request, kind: string, limit: number) {
   const key = createHmac('sha256', dailySalt)
     .update(`${new Date().toISOString().slice(0, 10)}:${kind}:${ip}`)
     .digest('hex');
-  const result = await client
-    .rpc('consume_product_limit', {
-      p_key: key,
-      p_limit: limit,
-      p_seconds: 3600,
-    })
-    .abortSignal(AbortSignal.timeout(3000));
-  return !result.error && result.data;
+  try {
+    const result = await client.query<{ allowed: boolean }>(
+      'select consume_product_limit($1,$2,$3) allowed',
+      [key, limit, 3600],
+    );
+    return result[0]?.allowed === true;
+  } catch {
+    return false;
+  }
 }
