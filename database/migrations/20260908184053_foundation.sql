@@ -300,18 +300,5 @@ begin
 end;
 $$;
 
--- Deny by default: Prompt 1 has no public data API or user writes.
--- Supabase's service_role stays in worker/server environment variables only.
-do $$
-declare name text;
-begin
-  foreach name in array array['sources','allowed_hosts','source_endpoints','crawl_runs','crawl_errors','documents','document_versions','document_attachments','document_observations','topics','entities','facts','fact_evidence','answer_pages','answer_facts','answer_sources','authority_rules'] loop
-    execute format('alter table public.%I enable row level security', name);
-    execute format('revoke all on public.%I from public, anon, authenticated, service_role', name);
-    execute format('grant select, insert, update on public.%I to service_role', name);
-  end loop;
-end;
-$$;
-revoke update on public.document_versions, public.document_observations, public.fact_evidence from service_role;
-revoke all on function public.persist_ingested_document(jsonb), public.is_fact_value(jsonb), public.reject_history_mutation(), public.guard_fact(), public.guard_evidence(), public.guard_topic_cycle() from public, anon, authenticated;
-grant execute on function public.persist_ingested_document(jsonb), public.is_fact_value(jsonb) to service_role;
+-- The database has no public HTTP data API. A dedicated, non-browser database
+-- account is the boundary; Next.js and the worker are the only clients.

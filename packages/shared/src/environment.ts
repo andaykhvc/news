@@ -4,6 +4,7 @@ export function environmentProblems(
   target: 'web' | 'worker',
   production = false,
 ): string[] {
+  void production;
   const errors: string[] = [];
   for (const key of Object.keys(env))
     if (
@@ -13,8 +14,7 @@ export function environmentProblems(
     )
       errors.push(`${key}: must never be public`);
   for (const key of [
-    'SUPABASE_URL',
-    'SUPABASE_SERVICE_ROLE_KEY',
+    'DATABASE_URL',
     ...(target === 'web'
       ? [
           'PUBLIC_SITE_URL',
@@ -26,7 +26,7 @@ export function environmentProblems(
   ])
     if (!env[key]?.trim()) errors.push(`${key}: required`);
   for (const key of [
-    'SUPABASE_URL',
+    'DATABASE_URL',
     ...(target === 'web' ? ['PUBLIC_SITE_URL'] : []),
   ]) {
     const value = env[key];
@@ -34,15 +34,13 @@ export function environmentProblems(
     try {
       const url = new URL(value);
       if (
-        url.username ||
-        url.password ||
-        !['http:', 'https:'].includes(url.protocol) ||
-        url.pathname !== '/' ||
-        url.search ||
-        url.hash ||
-        (production && url.protocol !== 'https:')
+        !['postgres:', 'postgresql:'].includes(url.protocol) ||
+        !url.hostname ||
+        !url.username ||
+        !url.pathname ||
+        url.hash
       )
-        errors.push(`${key}: use an HTTPS origin in production`);
+        errors.push(`${key}: use a complete PostgreSQL connection URL`);
     } catch {
       errors.push(`${key}: invalid URL`);
     }

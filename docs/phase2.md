@@ -26,7 +26,7 @@ Migration mevcut yerel Docker veritabanına uygulandı; veri resetlenmedi. Regis
 - Uydurulmuş tarih/alıntı, doğru alıntıdaki yanlış predicate-değer ilişkisi, farklı referans yılı, eksik yıl, kayıt dışı kaynak ve modelin status alanı reddedilir veya incelemeye alınır.
 - Metinsiz/bozuk/büyük PDF, kaybolan selector, keşif sayısı çöküşü ve tekrarlanan kaynak hatası testleri.
 - Uzun belge page/block sınırlarında en fazla 100.000 karakterlik provider pencerelerine ayrılır; local evidence offset'leri özgün immutable sürüme geri eşlenir. En fazla 20 pencere; tek blok sınırı aşarsa sessiz kesme yapılmaz.
-- Yerel Docker + gerçek PostgREST repository smoke: doğrudan resmî ÖSYM HTML ilk çalışmada `new_document`, ikinci çalışmada `unchanged`; fact `verified`, tekrar extraction atlandı. Bu denemede aday sağlayıcısı açıkça fixture idi, canlı LLM kullanılmadı.
+- Yerel PostgreSQL repository smoke: doğrudan resmî ÖSYM HTML ilk çalışmada `new_document`, ikinci çalışmada `unchanged`; fact `verified`, tekrar extraction atlandı. Bu denemede aday sağlayıcısı açıkça fixture idi, canlı LLM kullanılmadı.
 
 ## Canlı kaynak kontrolü
 

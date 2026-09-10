@@ -12,8 +12,7 @@ import {
   type AnswerResource,
 } from '@sak/answers';
 export function database() {
-  if (!process.env['SUPABASE_URL'] || !process.env['SUPABASE_SERVICE_ROLE_KEY'])
-    return null;
+  if (!process.env['DATABASE_URL']) return null;
   const parsed = databaseEnvironmentSchema.safeParse(process.env);
   return parsed.success ? createDatabaseClient(parsed.data) : null;
 }

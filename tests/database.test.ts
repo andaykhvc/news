@@ -14,19 +14,16 @@ let clock = Date.parse('2026-09-08T00:00:00Z');
 beforeAll(async () => {
   db = new PGlite();
   await db.exec(
-    'create role anon; create role authenticated; create role service_role bypassrls;',
-  );
-  await db.exec(
     await readFile(
       new URL(
-        '../supabase/migrations/20260908184053_foundation.sql',
+        '../database/migrations/20260908184053_foundation.sql',
         import.meta.url,
       ),
       'utf8',
     ),
   );
   await db.exec(
-    await readFile(new URL('../supabase/seed.sql', import.meta.url), 'utf8'),
+    await readFile(new URL('../database/seed.sql', import.meta.url), 'utf8'),
   );
   await db.query(
     'insert into sources(id,slug,name,status,authority_type) values($1,$2,$3,$4,$5)',
@@ -104,12 +101,11 @@ async function count(table: string) {
 }
 
 describe('PostgreSQL migration and transactional persistence', () => {
-  it('creates all 17 tables with RLS enabled', async () => {
+  it('creates the private application schema', async () => {
     const result = await db.query<{ relname: string; relrowsecurity: boolean }>(
       "select relname,relrowsecurity from pg_class c join pg_namespace n on n.oid=c.relnamespace where n.nspname='public' and relkind='r'",
     );
     expect(result.rows).toHaveLength(17);
-    expect(result.rows.every((r) => r.relrowsecurity)).toBe(true);
   });
   it('preserves A → B → A with only two immutable versions and three observations', async () => {
     const versionsBefore = await count('document_versions');
@@ -185,30 +181,12 @@ describe('PostgreSQL migration and transactional persistence', () => {
       persist({ ...input, source_id: randomUUID() }),
     ).rejects.toThrow('active source');
   });
-  it.each(['anon', 'authenticated'])(
-    'denies %s table and RPC access',
-    async (role) => {
-      await db.exec(`begin; set local role ${role};`);
-      await expect(db.query('select * from sources')).rejects.toThrow(
-        'permission denied',
-      );
-      await db.exec('rollback');
-      await db.exec(`begin; set local role ${role};`);
-      await expect(
-        db.query("select public.persist_ingested_document('{}')"),
-      ).rejects.toThrow('permission denied');
-      await db.exec('rollback');
-    },
-  );
-  it('allows service-role RPC writes while denying history edits and deletion', async () => {
+  it('allows the server database account while denying history edits and deletion', async () => {
     const input = await inputFor('Synthetic service role');
-    await db.exec('begin; set local role service_role;');
     expect((await persist(input)).outcome).toBe('new_document');
-    await db.exec('commit');
-    const permissions = await db.query<{ update: boolean; delete: boolean }>(
-      "select has_table_privilege('service_role','document_versions','UPDATE') as update, has_table_privilege('service_role','documents','DELETE') as delete",
-    );
-    expect(permissions.rows[0]).toEqual({ update: false, delete: false });
+    await expect(
+      db.query("update document_versions set raw_text='tampered'"),
+    ).rejects.toThrow('immutable');
   });
   it('requires evidence for publication and preserves superseded facts', async () => {
     const doc = await persist(

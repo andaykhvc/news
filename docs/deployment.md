@@ -1,84 +1,49 @@
 # Dağıtım ve işletim
 
-Bu rehber mevcut Next.js/Vercel + Supabase + bağımsız Node worker mimarisini kullanır. Yeni bir backend API, Redis, vektör veritabanı veya Vercel crawler cron'u gerekmez.
+Şak Haber, Vercel'deki Next.js uygulaması, Vercel hesabına bağlanan PostgreSQL veritabanı ve ayrı Docker worker ile çalışır. Uygulama kodu tek değişken kullanır: `DATABASE_URL`.
 
-## 1. Veritabanı
+## 1. PostgreSQL
 
-Önce yedek/PITR durumunu doğrulayın. Mevcut veriyi koruyarak migration uygulayın; normal güncellemede `db reset` kullanmayın. Yerel `sak-haber` projesinde API 56321, DB 56322'dir; başka Docker projelerine dokunmayın.
+Vercel Marketplace üzerinden bir PostgreSQL sağlayıcısı bağlayın. Sağlayıcının verdiği **pooled** bağlantı adresini Vercel'e `DATABASE_URL` olarak ekleyin. Aynı değeri worker ortamına da koyun. Bu değişken yalnızca sunucuda kalır; `NEXT_PUBLIC_` ile başlamaz.
+
+Yeni, boş veritabanında migration ve güvenli katalog seed'ini uygulayın:
 
 ```sh
-pnpm exec supabase migration up --local
-docker exec -i supabase_db_sak-haber psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/seed.sql
-docker exec -i supabase_db_sak-haber psql -U postgres -d postgres -v ON_ERROR_STOP=1 < supabase/product-seed.sql
-pnpm db:lint
+DATABASE_URL='postgresql://...' pnpm db:migrate
 ```
 
-Uzak Supabase için doğru projeyi CLI ile bağladıktan sonra `db push` öncesinde dry run inceleyin. Registry ve product seed'ini onaylı proje bağlantısında uygulayın. Seed yalnızca kurum, host, endpoint, entity, yetki ve sorgu sözlüğü içerir; **government fact veya demo tarih içermez**. Mevcut devre dışı bırakılmış kayıtlar yeniden açılmaz. Supabase anahtarı sunucu/worker içindir; anon ve authenticated rollerinin raw tablolara/RPC'lere erişimi yoktur.
+Komut migration geçmişini `schema_migrations` tablosunda tutar ve tekrar çalıştırılabilir. `database/seed.sql` ile `database/product-seed.sql` yalnızca kurum, onaylı host, endpoint, yetki ve sorgu sözlüğü ekler; resmî fact veya demo tarih eklemez. Mevcut üretim veritabanına geçerken önce sağlayıcının yedek/PITR durumunu doğrulayın.
 
 ## 2. Vercel
 
-- Root Directory: `apps/web`.
-- `apps/web/vercel.json`: `framework: nextjs`, build `pnpm build`, install `pnpm install --frozen-lockfile`, output `.next`.
-- Node 24, `ENABLE_EXPERIMENTAL_COREPACK=1`, kökteki pnpm lockfile ve workspace paketlerine erişim.
-- Production ve Preview ortamlarını ayrı yapılandırın; önizlemeyi üretim servis anahtarına gereksiz bağlamayın.
-- `PUBLIC_SITE_URL`: gerçek kanonik HTTPS origin'i. Build anında kullanıldığı için değişince yeniden build gerekir.
-- `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`: yalnızca server environment. Supabase ile Vercel bölgesini yakın tutun.
-- `ADMIN_PASSWORD_SCRYPT`, `ADMIN_SESSION_SECRET`, `ADMIN_OPERATOR`, `ANALYTICS_SALT`: yalnızca server environment. Parola hash'i aşağıdaki yordamla; iki ayrı en az 32 karakterlik rastgele anahtarı secret manager ile oluşturun.
+- Root Directory: `apps/web`
+- `DATABASE_URL`: Vercel PostgreSQL sağlayıcısının pooled URL'si
+- `PUBLIC_SITE_URL`: gerçek kanonik HTTPS adresi
+- `ADMIN_PASSWORD_SCRYPT`, `ADMIN_SESSION_SECRET`, `ADMIN_OPERATOR`, `ANALYTICS_SALT`: yalnızca sunucu değişkenleri
 
-Önceki `7689f2d` Vercel önizlemesinde Next.js build başarılıydı; son adım `No Output Directory named "public" found` hatası veriyordu. Yeni dosya `.next` ve Next.js preset'ini açıkça tanımlar. Bu hata tespiti yeni dağıtımın başarılı olduğu anlamına gelmez.
-
-[Dosya tabanlı Vercel ayarları](https://vercel.com/docs/project-configuration) proje ayarlarını sürüm kontrolüne alır. Üretimde HTTPS, Vercel'in güvenilir proxy başlıkları ve erişim kayıtlarında kısa saklama süresi kullanın. Uygulama query metni loglamaz; sağlayıcı erişim kayıtları URL query'sini tutabilir.
-
-## 3. Yönetici erişimi
-
-Tek operatör modeli vardır; genel kullanıcı hesabı veya Supabase Auth kurulumu gerektirmez. İmzalı HMAC oturumu sekiz saatliktir; cookie `HttpOnly`, production'da `Secure`, `SameSite=Strict`. Her mutation origin ve oturumu kontrol eder. Giriş ve feedback DB üzerinden sınırlandırılır. Secret döndürmek tüm oturumları geçersiz kılar. Takım/SSO/MFA yetkilendirmesi henüz yoktur; çok operatörlü kullanıma geçmeden ekleyin.
-
-Parolayı komut satırı argümanına veya git dosyasına koymayın. Parola yöneticisinden güvenli stdin üzerinden:
+Uygulama tek bağlantı değişkeniyle çalışır. Yönetici oturumu yerel imzalı cookie'dir; genel kullanıcı hesabı gerekmez. Ortam adlarını, değerlerini göstermeden kontrol etmek için:
 
 ```sh
-# En az 16 karakterlik benzersiz parolayı stdin'e sağlayın.
-node scripts/hash-admin-password.mjs
+pnpm env:check -- --production
 ```
 
-Çıktı `salt:hash` biçimindedir; onu `ADMIN_PASSWORD_SCRYPT` secret'ı olarak kaydedin. `.env.example` yalnızca isimleri ve boş yer tutucuları gösterir. Ortamı shell'de açıkça yükledikten sonra:
+## 3. Worker
+
+Worker, resmî kaynakları tarar ve PDF işlemlerini yapar. Bu işlem Vercel sayfa isteğinde çalışmaz.
 
 ```sh
-pnpm env:check --production
-pnpm env:check --worker --production
-pnpm data:check
-```
-
-`/admin` kaynak durumunu, son crawl'ları, çıkarım hatalarını, aday ret nedenlerini, fact'leri ve cevap güncelliğini gösterir. Yayın kontrolü verified fact, güncel kanıt, grounding audit ve sağlıklı kaynak gerektirir. Gerekçeler kamuya açık geçmişte görünebilir. Ham adaylar doğrudan onaylanmaz: düzeltilmiş aday `--candidates` aracılığıyla tekrar aynı deterministik doğrulayıcıdan geçirilir. Çelişki düzeltmesi eski kaydı saklar; yeni kayıt ayrıca yayın kontrolünden geçer.
-
-## 4. Worker
-
-`.env.worker` git dışındadır; gerçek Supabase HTTPS origin ve service key ekleyin. `OPENAI_API_KEY` + `EXTRACTION_MODEL` ikisi birlikte opsiyoneldir. Yapılandırılmadığında worker belge ve kanıt arşivini toplar, model çalıştırmaz; çıkarım kapsamı tamamlanmadığından yokluk sonucu üretilemez. Public search/answer hiçbir koşulda model çağırmaz.
-
-```sh
-docker build -f deploy/worker.Dockerfile -t sak-haber-worker:phase3 .
+docker build -f deploy/worker.Dockerfile -t sak-haber-worker .
 docker compose -f deploy/compose.worker.yml up -d --build
-# Ortam shell'de zaten yüklüyse Docker olmadan:
-pnpm worker:scheduler
-# Tek bir sınırlı job turu:
-pnpm worker:scheduler --once
 ```
 
-Docker üretim görüntüsü fixture dosyalarını içermez; `--demo` production modunda kapalıdır. Docker healthcheck process heartbeat'ini denetler; veri güncelliği ayrıca `/health` ve `/admin` üzerinden izlenir.
+Worker ortamındaki tek zorunlu veritabanı değeri `DATABASE_URL`'dir. `OPENAI_API_KEY` ve `EXTRACTION_MODEL` birlikte verilirse yalnızca worker aday çıkarımı için kullanılır; public arama ve cevap isteklerinde model çağrısı yapılmaz.
 
-Her endpoint'in `source_endpoints.poll_interval_seconds` değeri planı belirler. Yetkili SQL bağlantısında yalnızca hedef kaydın bu alanını güncelleyebilirsiniz; source veya host onayını değiştirmeyin. Yeni aralık, çalışan iş bittikten sonra bir sonraki planlamada uygulanır. `WORKER_CONCURRENCY` 1–4, varsayılan 2'dir. Başlangıçta tek worker örneği kullanın; kurum başına tek etkin iş vardır. Farklı kurumların aynı host'u paylaşması için global host pacing henüz yoktur.
+## 4. Yayın öncesi
 
-İşler `SKIP LOCKED`, 45 dakika lease, rastgele token ve 20 dakika process sınırı kullanır. Timeout'ta SIGTERM, beş saniye sonra SIGKILL uygulanır. Transport ayrıca mevcut URL/DNS/byte/time sınırlarını korur. Başarısızlıkta 120/240 saniye gecikme; üçüncü denemeden sonra normal endpoint aralığına dönülür. Tekrar edilmiş completion veya eski lease token'ı kabul edilmez. Çöken process'in işi lease dolunca yeniden alınır; belge/extraction idempotency kayıtları çoğaltmayı önler. Ağ üzerindeki exactly-once yan etki garantisi iddia edilmez.
+1. `pnpm db:migrate` ile şema ve seed'i yükleyin.
+2. Vercel preview'de arama → kanonik cevap → resmî kanıt akışını kontrol edin.
+3. Worker'ı çalıştırın ve `/admin` ekranında kaynak sağlığını inceleyin.
+4. Yalnızca güncel kanıtı, doğrulama kaydı ve sağlıklı kaynağı olan fact'leri yayımlayın.
+5. `/health` ve worker heartbeat'ini izleyin.
 
-Anonim ölçümler ve rate-limit kayıtları başlangıçta ve saatte bir temizlenir. Worker çalışmıyorsa retention bakımının da çalışmadığını izleyin. Kaynak hatası web uygulamasını durdurmaz; public cevap güveni azalır veya güvenli unavailable ekranı çıkar.
-
-## 5. Yayına geçiş doğrulaması
-
-1. Migration/seed, RLS ve veri kalite kontrollerini çalıştırın.
-2. Sınırlı gerçek kaynak taraması yapın; parser drift veya needs_review kayıtlarını çözün. Eski kayıtları “bugün doğrulandı” diye yeniden damgalamayın.
-3. En az bir güncel fact için belgedeki değer ve alıntıyı inceleyip admin'den yayıma açın.
-4. Önizlemede search → canonical → answer → gov.tr kanıt → geçmiş yolunu ve mobil ekranı doğrulayın.
-5. Bir kaynağı başarısız/eskimiş simüle eden testleri, unauthorized admin mutation ve revocation testlerini çalıştırın.
-6. Gerçek ortamın `/health`, worker liveness, kaynak son başarılı kontrolü ve error log'larını izleyin. Operatör müdahalesi için mevcut izleme hizmetinizde alarm kurun.
-7. Kanonik domain, SSL, doğru Supabase projesi, secret kapsamı, yedek/restore planı ve log retention doğrulandıktan sonra production promotion yapın.
-
-Bu geliştirme çalışmasında üretim promotion'ı veya uzak Supabase migration'ı yapılmış değildir.
+Vercel web uygulaması ile worker aynı PostgreSQL veritabanına bağlanır. Kaynak taraması aksarsa public cevap güveni düşer; eski veri yeni doğrulanmış gibi sunulmaz.

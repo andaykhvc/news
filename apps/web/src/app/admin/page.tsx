@@ -53,25 +53,31 @@ export default async function Admin({
     params.before && Number.isFinite(Date.parse(params.before))
       ? new Date(params.before).toISOString()
       : new Date().toISOString();
-  const [report, { snapshot, available }] = await Promise.all([
-    client
-      .rpc('product_admin_snapshot', { p_before: before })
-      .abortSignal(AbortSignal.timeout(5000)),
+  const [report, answerData] = await Promise.allSettled([
+    client.query<{ data: unknown }>(
+      'select product_admin_snapshot($1::timestamptz) data',
+      [before],
+    ),
     snapshotForYear(currentTurkishYear()),
   ]);
-  if (report.error || !available)
+  if (
+    report.status !== 'fulfilled' ||
+    answerData.status !== 'fulfilled' ||
+    !answerData.value.available
+  )
     return (
       <section className="wrap prose">
         <h1>İşletim verisi yüklenemedi</h1>
         <p>Veritabanı bağlantısını ve migration durumunu kontrol edin.</p>
       </section>
     );
-  const payload =
-    report.data &&
-    typeof report.data === 'object' &&
-    !Array.isArray(report.data)
-      ? report.data
+  const payload: Record<string, unknown> =
+    report.value[0]?.data &&
+    typeof report.value[0].data === 'object' &&
+    !Array.isArray(report.value[0].data)
+      ? (report.value[0].data as Record<string, unknown>)
       : {};
+  const snapshot = answerData.value.snapshot;
   const facts = snapshot.facts;
   const answers = answerResources.map((r) =>
     resolveAnswer(r, currentTurkishYear(), snapshot, new Date().toISOString()),

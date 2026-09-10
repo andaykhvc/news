@@ -18,10 +18,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@sak/answers": "workspace:*",
     "@sak/domain": "workspace:*",
     "@sak/ingestion": "workspace:*",
-    "@supabase/supabase-js": "2.116.0",
-    "zod": "4.5.4",
-    "@sak/answers": "workspace:*"
+    "postgres": "3.4.8",
+    "zod": "4.5.4"
   }
 }

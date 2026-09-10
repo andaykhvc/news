@@ -9,17 +9,14 @@ import {
 let db: PGlite;
 beforeAll(async () => {
   db = new PGlite({ extensions: { pg_trgm } });
-  await db.exec(
-    'create role anon; create role authenticated; create role service_role bypassrls;',
-  );
   for (const file of [
-    'supabase/migrations/20260908184053_foundation.sql',
-    'supabase/migrations/20260908193230_education_ingestion_verification.sql',
-    'supabase/migrations/20260909095636_answer_product_operations.sql',
-    'supabase/migrations/20260909134846_product_publication_hardening.sql',
-    'supabase/migrations/20260909140251_worker_source_leases.sql',
-    'supabase/seed.sql',
-    'supabase/product-seed.sql',
+    'database/migrations/20260908184053_foundation.sql',
+    'database/migrations/20260908193230_education_ingestion_verification.sql',
+    'database/migrations/20260909095636_answer_product_operations.sql',
+    'database/migrations/20260909134846_product_publication_hardening.sql',
+    'database/migrations/20260909140251_worker_source_leases.sql',
+    'database/seed.sql',
+    'database/product-seed.sql',
   ])
     await db.exec(
       await readFile(new URL('../' + file, import.meta.url), 'utf8'),
@@ -100,21 +97,6 @@ it('rate limiting and event aggregates retain no visitor-query linkage', async (
     "insert into product_events(day,kind,key) values(current_date-31,'helpful','old'); select product_maintenance()",
   );
   expect((await db.query('select * from product_events')).rows).toHaveLength(1);
-});
-it('all new tables and RPCs deny anonymous and authenticated use', async () => {
-  for (const role of ['anon', 'authenticated']) {
-    await db.exec(`set role ${role}`);
-    await expect(
-      db.query("select product_snapshot(array['yks'],'2026')"),
-    ).rejects.toThrow(/permission denied/);
-    await expect(db.query('select * from endpoint_jobs')).rejects.toThrow(
-      /permission denied/,
-    );
-    await expect(
-      db.query("select record_product_event('helpful','x')"),
-    ).rejects.toThrow(/permission denied/);
-    await db.exec('reset role');
-  }
 });
 it('runs document → grounding → database verification → reviewed publication → canonical answer → revocation', async () => {
   const { randomUUID } = await import('node:crypto');

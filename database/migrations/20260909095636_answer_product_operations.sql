@@ -121,18 +121,6 @@ create function public.product_maintenance() returns void language plpgsql secur
  delete from public.product_events where day<current_date-30;
  delete from public.request_limits where window_start<now()-interval '1 day';
  end $$;
--- Audited correction and ingestion history are preserved; only anonymous aggregates expire.
-do $$ declare name text; begin
- foreach name in array array['query_aliases','fact_review_actions','endpoint_jobs','product_events','request_limits'] loop
- execute format('alter table public.%I enable row level security',name);
- execute format('revoke all on public.%I from anon,authenticated',name);
- execute format('grant select,insert,update on public.%I to service_role',name);
- end loop;
-end $$;
-revoke update on public.fact_review_actions from service_role;
-grant delete on public.product_events,public.request_limits to service_role;
-revoke all on function public.search_answer_resources(text),public.consume_product_limit(text,integer,integer),public.record_product_event(text,text),public.claim_endpoint_job(),public.finish_endpoint_job(uuid,uuid,boolean,text),public.product_snapshot(text[],text),public.review_product_fact(uuid,timestamptz,text,text,text),public.product_maintenance() from public,anon,authenticated;
-grant execute on function public.search_answer_resources(text),public.consume_product_limit(text,integer,integer),public.record_product_event(text,text),public.claim_endpoint_job(),public.finish_endpoint_job(uuid,uuid,boolean,text),public.product_snapshot(text[],text),public.review_product_fact(uuid,timestamptz,text,text,text),public.product_maintenance() to service_role;
 create function public.product_admin_snapshot(p_before timestamptz) returns jsonb language sql stable security invoker set search_path=public,pg_temp as $$
  select jsonb_build_object(
  'jobs',(select coalesce(jsonb_agg(x),'[]') from (select * from public.endpoint_jobs order by due_at limit 100) x),
@@ -145,5 +133,3 @@ create function public.product_admin_snapshot(p_before timestamptz) returns json
  'feedback',(select coalesce(jsonb_agg(x),'[]') from (select * from public.product_events order by day desc,count desc limit 100) x)
  );
 $$;
-revoke all on function public.product_admin_snapshot(timestamptz) from public,anon,authenticated;
-grant execute on function public.product_admin_snapshot(timestamptz) to service_role;

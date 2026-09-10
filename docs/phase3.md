@@ -4,7 +4,7 @@ Doğrulama: 9 Eylül 2026. Bu aşama önceki belge/fact motorunu genişletir; ye
 
 ## Korunan mimari ve düzeltilen kusurlar
 
-Next.js/Vercel, Supabase/PostgreSQL, kurum adaptörleri, DNS/IP sabit HTTP, ham artefact arşivi, değişmez belge sürümleri, UTF-16 kanıt konumları, PDF sınırları, typed fact'ler, contextual authority, extraction audit ve kaynak kapsamı korunmuştur. Ayrı API sunucusu, vektör altyapısı veya istemci state kütüphanesi eklenmedi.
+Next.js/Vercel, PostgreSQL, kurum adaptörleri, DNS/IP sabit HTTP, ham artefact arşivi, değişmez belge sürümleri, UTF-16 kanıt konumları, PDF sınırları, typed fact'ler, contextual authority, extraction audit ve kaynak kapsamı korunmuştur. Ayrı API sunucusu, vektör altyapısı veya istemci state kütphanesi eklenmedi.
 
 Normal YKS tercihleri, ek yerleştirme ve yerleştirme sonuçları ayrıldı. Mevcut generic YKS kanıtlarının ek yerleştirme bilgisiyle normal tercih sayfasını doldurması da engellendi. Aynı claim'in yeni belge sürümünde yeniden doğrulanması artık eski immutable evidence yüzünden yanlışlıkla gizlenmiyor; yalnızca güncel sürüm kanıtı gösteriliyor. Eski altı topic ID'sinin PostgreSQL ile Zod arasındaki UUID variant uyumsuzluğu, referansları değiştirmeyen dar bir uyumluluk kuralıyla giderildi. Seed üreticisi çözülemeyen kimlikleri reddediyor.
 
@@ -72,7 +72,7 @@ Query, authority, temporal resolution, değer gösterimi ve cevap metni **tamame
 
 ## Doğrulama ve sınırlar
 
-Son sonuçlar aşağıda ayrı kaydedilir. Testler; alias→canonical, future date, superseded, yanlış yıl, conflict/needs_review, scoped absence, eksik extraction, parser/stale coverage, exact evidence linki, missing grounding audit, legacy YKS ayrımı, immutable evidence, validity expiry, SQL lease/token, kurum kilidi, RLS, rate limit/retention, yayın/ret zinciri ve admin oturumunu kapsar. Browser testleri yalnızca localhost PostgREST double kullanır; uygulamada fixture veya saat override anahtarı yoktur.
+Son sonuçlar aşağıda ayrı kaydedilir. Testler; alias→canonical, future date, superseded, yanlış yıl, conflict/needs_review, scoped absence, eksik extraction, parser/stale coverage, exact evidence linki, missing grounding audit, legacy YKS ayrımı, immutable evidence, validity expiry, SQL lease/token, kurum kilidi, rate limit/retention, yayın/ret zinciri ve admin oturumunu kapsar. Browser testleri veritabanı yokken güvenli unavailable davranışını doğrular; uygulamada fixture veya saat override anahtarı yoktur.
 
 Yerel veri kalite kontrolü: 0 yayımlanmış fact, 0 invalid published answer, 0 sentetik fixture belge. Mevcut gerçek DGS fact'i yayın/güncellik kontrolü bekliyor. Bu, production içerik kapsamının tamamlandığı anlamına gelmez.
 
@@ -89,7 +89,7 @@ En güvenli sonraki adımlar: [dağıtım rehberindeki](deployment.md) doğru pr
 | Vitest birim/entegrasyon                                 | **199 / 199 geçti**                                                |
 | Playwright Chromium, masaüstü + mobil                    | **28 / 28 geçti**                                                  |
 | Yerel üç yeni migration + seed'ler                       | Uygulandı; mevcut veriler korundu                                  |
-| Supabase `db lint --local --level warning`               | Hata yok                                                           |
+| Boş PostgreSQL migration + veri kalite kontrolü          | Başarılı                                                           |
 | Yerel canlı cevap veri kalitesi                          | Invalid published answer: 0; fixture belge: 0; yayımlanmış fact: 0 |
 | Worker Docker build + non-root/read-only CLI smoke       | Geçti                                                              |
 | Eski worker demo uyumluluğu                              | Geçti; production'da demo kapalı                                   |

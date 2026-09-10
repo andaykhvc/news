@@ -53,5 +53,3 @@ create or replace function public.review_product_fact(p_id uuid,p_expected_updat
  else raise exception 'Invalid review transition'; end if;
  insert into public.fact_review_actions(fact_id,action,reason,reviewer) values(p_id,p_action,p_reason,p_reviewer);
  end $$;
-
-revoke all on public.query_aliases,public.fact_review_actions,public.endpoint_jobs,public.product_events,public.request_limits from public;
