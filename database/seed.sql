@@ -20,7 +20,10 @@ insert into public.allowed_hosts (id, source_id, hostname, include_subdomains, s
 ('00000000-0000-4000-9000-000000000014', '00000000-0000-4000-8000-000000000003', 'www.yok.gov.tr', false, 'active', '2026-09-08T19:30:00Z'),
 ('00000000-0000-4000-9000-000000000015', '00000000-0000-4000-8000-000000000004', 'kygm.gsb.gov.tr', false, 'active', '2026-09-08T19:30:00Z'),
 ('00000000-0000-4000-9000-000000000016', '00000000-0000-4000-8000-000000000005', 'www.yokak.gov.tr', false, 'active', '2026-09-08T19:30:00Z'),
-('00000000-0000-4000-9000-000000000017', '00000000-0000-4000-8000-000000000001', 'cdn.osym.gov.tr', false, 'active', '2026-09-11T13:30:00Z')
+('00000000-0000-4000-9000-000000000017', '00000000-0000-4000-8000-000000000001', 'cdn.osym.gov.tr', false, 'active', '2026-09-11T13:30:00Z'),
+('00000000-0000-4000-9000-000000000018', '00000000-0000-4000-8000-000000000001', 'sonuc.osym.gov.tr', false, 'active', '2026-09-11T17:00:00Z'),
+('00000000-0000-4000-9000-000000000019', '00000000-0000-4000-8000-000000000001', 'ais.osym.gov.tr', false, 'active', '2026-09-11T17:00:00Z'),
+('00000000-0000-4000-9000-000000000020', '00000000-0000-4000-8000-000000000002', 'odsgm.meb.gov.tr', false, 'active', '2026-09-11T17:00:00Z')
 on conflict (source_id, hostname) do nothing;
 
 insert into public.source_endpoints (id, source_id, slug, name, base_url, endpoint_type, status, poll_interval_seconds, created_at, updated_at) values

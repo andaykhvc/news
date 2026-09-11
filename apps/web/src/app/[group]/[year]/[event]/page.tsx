@@ -8,7 +8,12 @@ import {
   answerResources,
   relatedAnswers,
 } from '@sak/answers';
-import { answerFor, snapshotForGroup, siteUrl } from '../../../../lib/product';
+import {
+  answerFor,
+  snapshotForGroup,
+  siteUrl,
+  newsArticle,
+} from '../../../../lib/product';
 import { Search } from '../../../../components/search';
 type Props = {
   params: Promise<{ group: string; year: string; event: string }>;
@@ -65,6 +70,16 @@ export default async function AnswerPage({ params }: Props) {
     new Date().toISOString(),
     answerResources,
   );
+  const news = answer.factId
+    ? (
+        await Promise.all(
+          answer.evidence.map(async (e) => {
+            const article = await newsArticle(e.documentId);
+            return article?.version_id === e.versionId ? article : null;
+          }),
+        )
+      ).find((a) => a !== null)
+    : null;
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
@@ -106,6 +121,20 @@ export default async function AnswerPage({ params }: Props) {
             <p className="direct-answer" data-testid="direct-answer">
               {answer.text}
             </p>
+            {news && (
+              <div className="news-actions">
+                {news.actions.map((a) => (
+                  <a
+                    key={a.url}
+                    href={a.url}
+                    className="official-action"
+                    rel="external noreferrer"
+                  >
+                    {a.label} ↗
+                  </a>
+                ))}
+              </div>
+            )}
             {answer.warnings.map((w) => (
               <p className="warning" key={w}>
                 {w}
@@ -145,6 +174,16 @@ export default async function AnswerPage({ params }: Props) {
           <Link href="/nasil-calisir">Yöntemimiz ↗</Link>
         </aside>
       </div>
+      {news && (
+        <section className="prose">
+          <h2>Resmî duyurunun içeriği</h2>
+          <p>{news.source_name} tarafından yayımlanan duyurudan:</p>
+          {news.excerpts.map((e) => (
+            <p key={e.id}>{e.quote}</p>
+          ))}
+          <Link href={'/haber/' + news.id}>Haber ve kaynak geçmişi →</Link>
+        </section>
+      )}
       <section id="kanit" className="evidence-section">
         <div className="section-heading">
           <h2>Resmî kaynak ve kanıt</h2>

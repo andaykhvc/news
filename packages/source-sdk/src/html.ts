@@ -118,7 +118,7 @@ export function parseStructuredHtml(
     throw new Error('parser_drift: body unexpectedly empty');
   const pub =
     $('meta[property="article:published_time"]').attr('content') ?? null;
-  const published =
+  let published =
     pub &&
     /^\d{4}-\d\d-\d\dT.*(?:Z|[+-]\d\d:\d\d)$/.test(pub) &&
     Number.isFinite(Date.parse(pub))
@@ -127,6 +127,60 @@ export function parseStructuredHtml(
   if (profile.publication)
     structure.publication_date =
       clean($(profile.publication).first().text()) || null;
+  // Read the institution's explicit publication date, never infer it from the crawl clock.
+  if (!published) {
+    const dateText =
+      profile.sourceKey === 'osym'
+        ? raw.match(/^DUYURU\s*\(([^)]+)\)/u)?.[1]
+        : structure.publication_date;
+    const dated = dateText?.match(
+      /^(\d{1,2}) (Ocak|Şubat|Mart|Nisan|Mayıs|Haziran|Temmuz|Ağustos|Eylül|Ekim|Kasım|Aralık) (\d{4})(?: (\d{2}:\d{2}))?$/u,
+    );
+    if (dated) {
+      const month =
+        [
+          'Ocak',
+          'Şubat',
+          'Mart',
+          'Nisan',
+          'Mayıs',
+          'Haziran',
+          'Temmuz',
+          'Ağustos',
+          'Eylül',
+          'Ekim',
+          'Kasım',
+          'Aralık',
+        ].indexOf(dated[2]!) + 1;
+      const day =
+        dated[3] +
+        '-' +
+        String(month).padStart(2, '0') +
+        '-' +
+        dated[1]!.padStart(2, '0');
+      const instant = new Date(day + 'T' + (dated[4] ?? '00:00') + ':00+03:00');
+      if (
+        Number.isFinite(instant.valueOf()) &&
+        new Date(day + 'T12:00:00Z').toISOString().startsWith(day)
+      ) {
+        published = instant.toISOString();
+        structure.publication_date = dated[0];
+      }
+    }
+  }
+  const officialLinks = root
+    .find('a[href]')
+    .toArray()
+    .flatMap((a) => {
+      try {
+        const url = new URL($(a).attr('href')!, doc.final_url);
+        if (url.protocol !== 'https:' || url.username || url.password)
+          return [];
+        return [{ url: url.href, text: clean($(a).text()) }];
+      } catch {
+        return [];
+      }
+    });
   const canonical = $('link[rel="canonical"]').attr('href');
   const attachments = root
     .find('a[href]')
@@ -167,7 +221,11 @@ export function parseStructuredHtml(
     raw_text: raw.trimEnd(),
     published_at: published,
     attachments,
-    metadata: { structure, parser_profile: profile.sourceKey },
+    metadata: {
+      structure,
+      parser_profile: profile.sourceKey,
+      official_links: officialLinks,
+    },
   };
 }
 export interface ListingPage {

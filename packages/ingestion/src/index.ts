@@ -6,3 +6,4 @@ export * from './pdf';
 export * from './extractor';
 export * from './knowledge';
 export * from './official-result-rules';
+export * from './news';
