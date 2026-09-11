@@ -141,27 +141,29 @@ export function resolveAnswer(
   const endpoints = data.endpoints.filter(
     (e) => e.status === 'active' && sources.some((s) => s.id === e.source_id),
   );
-  const healthy =
-    endpoints.length > 0 &&
-    endpoints.every((e) => {
-      const c = data.checks.find((c) => c.endpoint_id === e.id);
-      return (
-        c?.status === 'success' &&
-        fresh(
-          c.successful_at,
-          now,
-          Math.max(e.poll_interval_seconds * 3, 3600) * 1000,
-        ) &&
-        fresh(
-          c.checked_at,
-          now,
-          Math.max(e.poll_interval_seconds * 3, 3600) * 1000,
-        ) &&
-        c.reasons.every((r) =>
-          ['bounded_or_incomplete_discovery', 'document_limit'].includes(r),
-        )
-      );
-    });
+  const endpointHealthy = (
+    endpoint: (typeof endpoints)[number] | undefined,
+  ) => {
+    if (!endpoint) return false;
+    const check = data.checks.find((c) => c.endpoint_id === endpoint.id);
+    return (
+      check?.status === 'success' &&
+      fresh(
+        check.successful_at,
+        now,
+        Math.max(endpoint.poll_interval_seconds * 3, 3600) * 1000,
+      ) &&
+      fresh(
+        check.checked_at,
+        now,
+        Math.max(endpoint.poll_interval_seconds * 3, 3600) * 1000,
+      ) &&
+      check.reasons.every((reason) =>
+        ['bounded_or_incomplete_discovery', 'document_limit'].includes(reason),
+      )
+    );
+  };
+  const healthy = endpoints.length > 0 && endpoints.every(endpointHealthy);
   const successful = endpoints
     .map((e) => data.checks.find((c) => c.endpoint_id === e.id)?.successful_at)
     .filter((x): x is string => !!x && Date.parse(x) <= now)
@@ -362,22 +364,23 @@ export function resolveAnswer(
           'Belgedeki ilgili bölüm'),
       verifiedAt: fact.verified_at,
     }));
-    if (
-      bundles.some(
-        ({ document }) =>
-          !fresh(
-            document.latest_seen_at,
-            now,
-            Math.max(
-              ...endpoints
-                .filter((e) => e.source_id === source.id)
-                .map((e) => e.poll_interval_seconds * 3),
-              3600,
-            ) * 1000,
-          ),
-      )
-    )
-      answer.stale = true;
+    // A positive answer is supported by its own evidence endpoint. Another
+    // endpoint from the same institution may be delayed without making this
+    // already checked document look stale. The broader endpoint set remains
+    // relevant to no-result and monitored-absence answers above.
+    answer.stale = bundles.some(({ document }) => {
+      const endpoint = endpoints.find(
+        (item) => item.id === document.source_endpoint_id,
+      );
+      return (
+        !endpointHealthy(endpoint) ||
+        !fresh(
+          document.latest_seen_at,
+          now,
+          Math.max(endpoint?.poll_interval_seconds ?? 0, 3600) * 3 * 1000,
+        )
+      );
+    });
     if (answer.stale)
       answer.text += ' Kaynağın güncel durumu yeniden doğrulanmalı.';
     return finish();

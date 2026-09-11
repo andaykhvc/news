@@ -175,6 +175,30 @@ describe('answer trace and temporal resolution', () => {
       expect(answer.warnings.length).toBeGreaterThan(0);
     },
   );
+  it('keeps a positive answer fresh when an unrelated endpoint is delayed', () => {
+    const data = answerFixture();
+    const delayedEndpoint = {
+      ...data.endpoints[0]!,
+      id: randomUUID(),
+      slug: 'separate-archive',
+      name: 'Ayrı resmî arşiv',
+    };
+    data.endpoints.push(delayedEndpoint);
+    data.checks.push({
+      endpoint_id: delayedEndpoint.id,
+      checked_at: '2026-09-01T00:00:00Z',
+      successful_at: '2026-09-01T00:00:00Z',
+      status: 'failed',
+      scope: 'rolling_window',
+      complete: false,
+      pages: [delayedEndpoint.base_url],
+      reasons: ['crawl_incomplete'],
+      extraction_complete: false,
+    });
+    const answer = resolve(data);
+    expect(answer).toMatchObject({ state: 'future_announced', stale: false });
+    expect(answer.text).not.toContain('yeniden doğrulanmalı');
+  });
   it.each([
     'version',
     'quote',

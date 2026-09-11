@@ -24,7 +24,10 @@ export async function publishVerifiedFactsFromProvider(
   provider: string,
 ): Promise<number> {
   const facts = await client.query<{ id: string; updated_at: string }>(
-    `select distinct f.id,f.updated_at
+    // Keep PostgreSQL's full timestamp precision. A JavaScript Date rounds to
+    // milliseconds, while review_product_fact intentionally compares the
+    // optimistic-concurrency value exactly.
+    `select distinct f.id,f.updated_at::text as updated_at
        from facts f
        join candidate_validations cv on cv.fact_id=f.id
        join extraction_attempts a on a.id=cv.attempt_id
