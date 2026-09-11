@@ -75,7 +75,7 @@ describe('source registry', () => {
   it('seeds reviewed sources and exact endpoints without automatic subdomain trust', () => {
     const initial = validateSourceRegistry(initialSourceRegistry);
     expect(initial.sources).toHaveLength(5);
-    expect(initial.endpoints).toHaveLength(6);
+    expect(initial.endpoints).toHaveLength(7);
     expect(initial.sources.every((s) => s.status === 'active')).toBe(true);
     expect(initial.hosts.every((h) => !h.include_subdomains)).toBe(true);
   });

@@ -15,6 +15,47 @@ export interface OfficialAnnouncement {
 }
 
 /**
+ * The worker calls this only after a successful crawl. The database-side
+ * publication gate still checks current evidence, source freshness and the
+ * matching audited candidate before changing any fact to published.
+ */
+export async function publishVerifiedFactsFromProvider(
+  client: DatabaseClient,
+  provider: string,
+): Promise<number> {
+  const facts = await client.query<{ id: string; updated_at: string }>(
+    `select distinct f.id,f.updated_at
+       from facts f
+       join candidate_validations cv on cv.fact_id=f.id
+       join extraction_attempts a on a.id=cv.attempt_id
+      where f.status='verified'
+        and a.provider=$1
+        and cv.decision->>'status'='verified'`,
+    [provider],
+  );
+  let published = 0;
+  for (const fact of facts) {
+    try {
+      await client.query(
+        'select review_product_fact($1::uuid,$2::timestamptz,$3,$4,$5)',
+        [
+          fact.id,
+          fact.updated_at,
+          'publish',
+          'Birebir resmî sonuç başlığı otomatik yayımlandı.',
+          provider,
+        ],
+      );
+      published++;
+    } catch {
+      // A competing update or a stale source keeps the fact verified for the
+      // admin to inspect. A publication miss must never fail the crawl.
+    }
+  }
+  return published;
+}
+
+/**
  * These are source documents, not extracted facts. Keeping the official title
  * and direct URL intact lets the homepage be useful as soon as a crawl succeeds
  * without turning an unreviewed document into a factual claim.

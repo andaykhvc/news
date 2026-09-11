@@ -19,7 +19,8 @@ insert into public.allowed_hosts (id, source_id, hostname, include_subdomains, s
 ('00000000-0000-4000-9000-000000000013', '00000000-0000-4000-8000-000000000002', 'www.meb.gov.tr', false, 'active', '2026-09-08T19:30:00Z'),
 ('00000000-0000-4000-9000-000000000014', '00000000-0000-4000-8000-000000000003', 'www.yok.gov.tr', false, 'active', '2026-09-08T19:30:00Z'),
 ('00000000-0000-4000-9000-000000000015', '00000000-0000-4000-8000-000000000004', 'kygm.gsb.gov.tr', false, 'active', '2026-09-08T19:30:00Z'),
-('00000000-0000-4000-9000-000000000016', '00000000-0000-4000-8000-000000000005', 'www.yokak.gov.tr', false, 'active', '2026-09-08T19:30:00Z')
+('00000000-0000-4000-9000-000000000016', '00000000-0000-4000-8000-000000000005', 'www.yokak.gov.tr', false, 'active', '2026-09-08T19:30:00Z'),
+('00000000-0000-4000-9000-000000000017', '00000000-0000-4000-8000-000000000001', 'cdn.osym.gov.tr', false, 'active', '2026-09-11T13:30:00Z')
 on conflict (source_id, hostname) do nothing;
 
 insert into public.source_endpoints (id, source_id, slug, name, base_url, endpoint_type, status, poll_interval_seconds, created_at, updated_at) values
@@ -28,7 +29,8 @@ insert into public.source_endpoints (id, source_id, slug, name, base_url, endpoi
 ('00000000-0000-4000-a000-000000000003', '00000000-0000-4000-8000-000000000003', 'announcements', 'Yükseköğretim Kurulu resmî yayınları', 'https://www.yok.gov.tr/tr/announcements', 'html_listing', 'active', '3600', '2026-09-08T19:30:00Z', '2026-09-08T19:30:00Z'),
 ('00000000-0000-4000-a000-000000000004', '00000000-0000-4000-8000-000000000004', 'announcements', 'Gençlik ve Spor Bakanlığı resmî yayınları', 'https://kygm.gsb.gov.tr/Duyurular/', 'html_listing', 'active', '3600', '2026-09-08T19:30:00Z', '2026-09-08T19:30:00Z'),
 ('00000000-0000-4000-a000-000000000005', '00000000-0000-4000-8000-000000000004', 'news', 'Gençlik ve Spor Bakanlığı resmî yayınları', 'https://kygm.gsb.gov.tr/HaberListesi/1', 'html_listing', 'active', '3600', '2026-09-08T19:30:00Z', '2026-09-08T19:30:00Z'),
-('00000000-0000-4000-a000-000000000006', '00000000-0000-4000-8000-000000000005', 'announcements', 'Yükseköğretim Kalite Kurulu resmî yayınları', 'https://www.yokak.gov.tr/category/duyuru/', 'html_listing', 'active', '3600', '2026-09-08T19:30:00Z', '2026-09-08T19:30:00Z')
+('00000000-0000-4000-a000-000000000006', '00000000-0000-4000-8000-000000000005', 'announcements', 'Yükseköğretim Kalite Kurulu resmî yayınları', 'https://www.yokak.gov.tr/category/duyuru/', 'html_listing', 'active', '3600', '2026-09-08T19:30:00Z', '2026-09-08T19:30:00Z'),
+('00000000-0000-4000-a000-000000000007', '00000000-0000-4000-8000-000000000001', 'yks-announcements', 'ÖSYM YKS resmî duyuru arşivi', 'https://www.osym.gov.tr/SinavGrubu/Menu/314', 'html_listing', 'active', '3600', '2026-09-11T13:30:00Z', '2026-09-11T13:30:00Z')
 on conflict do nothing;
 
 insert into public.entities (id, key, name, entity_type) values

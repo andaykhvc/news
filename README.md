@@ -24,7 +24,7 @@ pnpm worker --source osym --max-pages 1 --max-documents 1 --dry-run
 pnpm dev
 ```
 
-`worker:demo` eski sentetik sürümleme örneğidir. `--fixture` komutları doğrudan resmî kaynaklardan kaydedilmiş gerçek HTML/PDF dosyalarını okur. Testler ağ ve API anahtarı gerektirmez. `--dry-run` canlı kaynak okuyabilir; veritabanına yazmaz. CLI hiçbir koşulda yayın yapmaz.
+`worker:demo` eski sentetik sürümleme örneğidir. `--fixture` komutları doğrudan resmî kaynaklardan kaydedilmiş gerçek HTML/PDF dosyalarını okur. Testler ağ ve API anahtarı gerektirmez. `--dry-run` canlı kaynak okuyabilir; veritabanına yazmaz. Worker yalnız birebir ÖSYM `YYYY-YKS: Sınav Sonuçları Açıklandı` ve `YYYY-YKS: Yerleştirme Sonuçları Açıklandı` başlıklarını deterministik aday olarak işler; başarılı kaynak kontrolü, exact evidence ve yayın kapısından sonra bunları otomatik yayımlar. Diğer facts yönetim incelemesi gerektirir.
 
 ## Docker ve kalıcı kayıt
 
@@ -62,7 +62,7 @@ MEB dinamik duyuru arşivi erişimi reddettiği için etkin değildir; MEB ana s
 
 PDF dosyaları boyut/sayfa/süre sınırlarıyla ayrı worker thread içinde ayrıştırılır. Ham dosyalar SHA-256 ile PostgreSQL'de saklanır. OCR yoktur. Karmaşık tablolar, eksik yıllar, yerel saat için belirtilmeyen UTC offset'i ve desteklenmeyen yapılandırılmış değerler inceleme gerektirir. Çelişkiler açık operatör kararı olmadan çözülmez.
 
-Arama ve cevap üretiminde LLM yoktur. Opsiyonel LLM yalnızca worker içinde aday çıkarır. Üretimde yayın için kaynakların sağlıklı olması ve doğrulanmış fact'in yönetim kontrolünden geçmesi gerekir. Kalıcı kaynak işleri PostgreSQL lease ile yürür. Çok sunuculu ortak host hız sınırlaması ve ölçekli yük testi henüz yapılmamıştır.
+Arama ve cevap üretiminde LLM yoktur. Opsiyonel LLM yalnızca worker içinde aday çıkarır. Üretimde yayın için kaynakların sağlıklı olması ve doğrulanmış fact'in yönetim kontrolünden geçmesi gerekir; yalnız yukarıdaki dar, birebir ÖSYM sonuç başlığı kuralı bu akışı otomatik tamamlar. Kalıcı kaynak işleri PostgreSQL lease ile yürür. Çok sunuculu ortak host hız sınırlaması ve ölçekli yük testi henüz yapılmamıştır.
 
 ## Vercel
 

@@ -147,6 +147,7 @@
       "name": "YKS yerleştirme",
       "aliases": [
         "YKS yerleştirme",
+        "YKS: Yerleştirme",
         "Yükseköğretim Kurumları Sınavı yerleştirme"
       ],
       "ambiguous_when": ["ek yerleştirme", "ek tercih"]
