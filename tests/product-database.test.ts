@@ -6,7 +6,17 @@ import {
   answerResources,
   answerSnapshotSchema,
 } from '../packages/answers/src/index';
+import { publishVerifiedFactsFromProvider } from '../packages/database/src/index';
 let db: PGlite;
+const databaseClient = {
+  async query<T extends Record<string, unknown>>(
+    statement: string,
+    parameters: readonly unknown[] = [],
+  ) {
+    return (await db.query<T>(statement, [...parameters])).rows;
+  },
+  async end() {},
+};
 beforeAll(async () => {
   db = new PGlite({ extensions: { pg_trgm } });
   for (const file of [
@@ -207,10 +217,9 @@ it('runs document → grounding → database verification → reviewed publicati
       [fact.id],
     ),
   ).rejects.toThrow(/fact changed/);
-  await db.query(
-    "select review_product_fact($1,$2,'publish','fixture reviewed evidence','test-operator')",
-    [fact.id, fact.updated_at],
-  );
+  expect(
+    await publishVerifiedFactsFromProvider(databaseClient, 'fixture-only'),
+  ).toBe(1);
   const published = await load(),
     intent = resolveQuery('YKS ek tercih ne zaman?', 2026).intent!;
   const answer = resolveAnswer(
