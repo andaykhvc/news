@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import { expect, it } from 'vitest';
 import {
   createOfficialResultTitleProvider,
+  isOfficialYksAnnouncementTitle,
   isOfficialResultTitle,
 } from '../packages/ingestion/src/index';
 import {
@@ -113,4 +114,43 @@ it('rejects near-match result titles instead of inferring a fact', async () => {
       signal: new AbortController().signal,
     }),
   ).resolves.toEqual({ candidates: [] });
+});
+
+it('grounds only the exact standard YKS preference announcement and its range', async () => {
+  const title = '2026-YKS: Tercihlerin Alınması';
+  const { document, version } = documentFor(title);
+  const raw =
+    'Adaylar tercihlerini, 29 Temmuz 2026-10 Ağustos 2026 tarihleri arasında kılavuzda yer alan kurallara göre yapacaktır.';
+  version.raw_text = raw;
+  version.normalized_text = raw;
+  const result = await createOfficialResultTitleProvider().extract({
+    document: version,
+    ontology: educationOntology,
+    signal: new AbortController().signal,
+  });
+  const candidate = (result as { candidates: unknown[] }).candidates[0];
+  expect(candidate).toMatchObject({
+    entity_key: 'yks',
+    predicate: 'preference_period',
+    value: {
+      type: 'date_range',
+      start: '2026-07-29',
+      end: '2026-08-10',
+    },
+    reference_period: '2026',
+  });
+  expect(isOfficialResultTitle(title)).toBe(false);
+  expect(isOfficialYksAnnouncementTitle(title)).toBe(true);
+  expect(
+    validateCandidate({
+      candidate,
+      document,
+      version,
+      sourceKey: 'osym',
+      sourceActive: true,
+      hosts: registry.hosts,
+      ontology: educationOntology,
+      asOf: '2026-09-11T13:31:00Z',
+    }).status,
+  ).toBe('verified');
 });

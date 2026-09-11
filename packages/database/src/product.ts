@@ -23,11 +23,8 @@ export async function publishVerifiedFactsFromProvider(
   client: DatabaseClient,
   provider: string,
 ): Promise<number> {
-  const facts = await client.query<{ id: string; updated_at: string }>(
-    // Keep PostgreSQL's full timestamp precision. A JavaScript Date rounds to
-    // milliseconds, while review_product_fact intentionally compares the
-    // optimistic-concurrency value exactly.
-    `select distinct f.id,f.updated_at::text as updated_at
+  const facts = await client.query<{ id: string }>(
+    `select distinct f.id
        from facts f
        join candidate_validations cv on cv.fact_id=f.id
        join extraction_attempts a on a.id=cv.attempt_id
@@ -39,17 +36,18 @@ export async function publishVerifiedFactsFromProvider(
   let published = 0;
   for (const fact of facts) {
     try {
-      await client.query(
-        'select review_product_fact($1::uuid,$2::timestamptz,$3,$4,$5)',
+      const result = await client.query(
+        `select review_product_fact(f.id,f.updated_at,$2,$3,$4)
+           from facts f
+          where f.id=$1::uuid and f.status='verified'`,
         [
           fact.id,
-          fact.updated_at,
           'publish',
-          'Birebir resmî sonuç başlığı otomatik yayımlandı.',
+          'Birebir resmî duyuru kuralı otomatik yayımlandı.',
           provider,
         ],
       );
-      published++;
+      if (result.length) published++;
     } catch {
       // A competing update or a stale source keeps the fact verified for the
       // admin to inspect. A publication miss must never fail the crawl.
