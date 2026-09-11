@@ -8,6 +8,7 @@ import {
   createDatabaseClient,
   createRepositories,
   createKnowledgeRepository,
+  publishVerifiedFactsFromProvider,
 } from '@sak/database';
 import { createMemoryRepositories } from '@sak/database/testing';
 import { educationProfiles, educationOntology } from '@sak/education';
@@ -24,6 +25,9 @@ import {
   fingerprintDocument,
   processKnowledge,
   createOpenAIProvider,
+  createOfficialResultTitleProvider,
+  isOfficialResultTitle,
+  OFFICIAL_RESULT_TITLE_PROVIDER,
   assessCoverage,
   type KnowledgeRepository,
   type ExtractionProvider,
@@ -166,6 +170,30 @@ export async function runEducationCli() {
       model: process.env['EXTRACTION_MODEL'] ?? '',
     });
   }
+  const officialResultProvider = createOfficialResultTitleProvider();
+  const processDocumentKnowledge = async (input: {
+    versionId: string;
+    title: string;
+    sourceKey: string;
+    hosts: ReturnType<typeof sourceRegistrySchema.parse>['hosts'];
+    repository: KnowledgeRepository;
+  }) => {
+    const providers = [
+      ...(isOfficialResultTitle(input.title) ? [officialResultProvider] : []),
+      ...(provider ? [provider] : []),
+    ];
+    for (const extractionProvider of providers)
+      await processKnowledge({
+        versionId: input.versionId,
+        sourceKey: input.sourceKey,
+        sourceActive: true,
+        hosts: input.hosts,
+        ontology: educationOntology,
+        provider: extractionProvider,
+        repository: input.repository,
+        signal: controller.signal,
+      });
+  };
   if (values.version) {
     if (!provider) throw new Error('Choose --candidates or --provider');
     const { document } = await knowledge.getVersion(values.version);
@@ -266,7 +294,7 @@ export async function runEducationCli() {
             await delay(ms, undefined, { signal });
           },
         },
-        async onPersisted({ fetched, parsed, persisted, runId, reportIssue }) {
+        async onPersisted({ fetched, parsed, persisted, runId }) {
           const store = write ? knowledge : dryKnowledge;
           await store.archive({
             version_id: persisted.version_id,
@@ -276,39 +304,49 @@ export async function runEducationCli() {
             status: 'parsed',
             reasons: [],
           });
-          if (provider)
-            await processKnowledge({
-              versionId: persisted.version_id,
-              sourceKey: source.slug,
-              sourceActive: true,
-              hosts,
-              ontology: educationOntology,
-              provider,
-              repository: store,
-              signal: controller.signal,
-            });
+          await processDocumentKnowledge({
+            versionId: persisted.version_id,
+            title: parsed.title,
+            sourceKey: source.slug,
+            hosts,
+            repository: store,
+          });
           if (parsed.attachments.length > 10)
-            await reportIssue(parsed.canonical_url, {
-              type: 'parse_failed',
-              message: 'attachment_limit: remaining attachments require review',
-              retryable: false,
-            });
+            console.warn(
+              JSON.stringify({
+                source: source.slug,
+                endpoint: endpoint.slug,
+                url: parsed.canonical_url,
+                warning:
+                  'attachment_limit: remaining attachments require review',
+              }),
+            );
           for (const attachment of parsed.attachments.slice(0, 10)) {
             if (!validateSourceUrl(attachment.url, source.id, hosts).ok)
               continue;
             const response = await http.get(attachment.url, controller.signal);
             if (!response.ok) {
-              await reportIssue(attachment.url, response.error);
+              console.warn(
+                JSON.stringify({
+                  source: source.slug,
+                  endpoint: endpoint.slug,
+                  url: attachment.url,
+                  warning: response.error.message,
+                }),
+              );
               continue;
             }
             const pdf = await parsePdf(response.value);
             let versionId: string | null = null;
             if (pdf.status === 'needs_review')
-              await reportIssue(attachment.url, {
-                type: 'parse_failed',
-                message: pdf.reasons.join(';'),
-                retryable: false,
-              });
+              console.warn(
+                JSON.stringify({
+                  source: source.slug,
+                  endpoint: endpoint.slug,
+                  url: attachment.url,
+                  warning: pdf.reasons.join(';'),
+                }),
+              );
             if (pdf.parsed) {
               const hash = fingerprintDocument(pdf.parsed, 'application/pdf');
               const result = await repositories.documents.persist({
@@ -333,28 +371,36 @@ export async function runEducationCli() {
               status: pdf.status,
               reasons: pdf.reasons,
             });
-            if (versionId && provider)
-              await processKnowledge({
+            if (versionId)
+              await processDocumentKnowledge({
                 versionId,
+                title: pdf.parsed?.title ?? '',
                 sourceKey: source.slug,
-                sourceActive: true,
                 hosts,
-                ontology: educationOntology,
-                provider,
                 repository: store,
-                signal: controller.signal,
               });
           }
         },
       });
       coverage = assessCoverage(coverage, previous, report.status);
       if (write) await knowledge.recordCoverage(report.runId, coverage);
+      const autoPublished =
+        write && client && report.status === 'success'
+          ? await publishVerifiedFactsFromProvider(
+              client,
+              OFFICIAL_RESULT_TITLE_PROVIDER,
+            )
+          : 0;
       console.log(
         JSON.stringify({
           source: source.slug,
           endpoint: endpoint.slug,
           dry_run: !write,
-          extraction: provider?.name ?? 'inactive: provider not configured',
+          extraction: [
+            OFFICIAL_RESULT_TITLE_PROVIDER,
+            ...(provider ? [provider.name] : []),
+          ],
+          auto_published: autoPublished,
           report,
           coverage,
         }),
