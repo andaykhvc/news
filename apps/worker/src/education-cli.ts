@@ -26,7 +26,7 @@ import {
   processKnowledge,
   createOpenAIProvider,
   createOfficialResultTitleProvider,
-  isOfficialResultTitle,
+  isOfficialYksAnnouncementTitle,
   OFFICIAL_RESULT_TITLE_PROVIDER,
   assessCoverage,
   type KnowledgeRepository,
@@ -179,7 +179,9 @@ export async function runEducationCli() {
     repository: KnowledgeRepository;
   }) => {
     const providers = [
-      ...(isOfficialResultTitle(input.title) ? [officialResultProvider] : []),
+      ...(isOfficialYksAnnouncementTitle(input.title)
+        ? [officialResultProvider]
+        : []),
       ...(provider ? [provider] : []),
     ];
     for (const extractionProvider of providers)

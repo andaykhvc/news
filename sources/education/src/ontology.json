@@ -189,7 +189,7 @@
     {
       "key": "preference_period",
       "value_types": ["date_range"],
-      "cues": ["tercih işlemleri"],
+      "cues": ["tercih işlemleri", "tercihlerini"],
       "unit": null,
       "lexicon": {}
     },
