@@ -9,6 +9,7 @@ import {
   createRepositories,
   createKnowledgeRepository,
   publishVerifiedFactsFromProvider,
+  publishNewsVersion,
 } from '@sak/database';
 import { createMemoryRepositories } from '@sak/database/testing';
 import { educationProfiles, educationOntology } from '@sak/education';
@@ -55,7 +56,7 @@ export async function runEducationCli() {
   });
   if (values.help || (!values.source && !values.version)) {
     console.log(
-      'Şak Haber ingestion (no publication)\n  pnpm worker --source osym|meb|yok|gsb|yokak|all [--max-pages 3 --max-documents 50] [--write]\n  pnpm worker --source osym --fixture osym-detail.html\n  pnpm worker --version UUID --candidates candidates.json [--write]\n  pnpm worker --version UUID --provider openai [--write]\nDefault: dry run. --write persists artifacts, decisions and verified facts; never publishes.',
+      'Şak Haber official ingestion\n  pnpm worker --source osym|meb|yok|gsb|yokak|all [--max-pages 3 --max-documents 50] [--write]\n  pnpm worker --source osym --fixture osym-detail.html\n  pnpm worker --version UUID --candidates candidates.json [--write]\n  pnpm worker --version UUID --provider openai [--write]\nDefault: dry run. --write archives evidence and automatically publishes exact official news excerpts plus facts accepted by registered publication rules.',
     );
     return;
   }
@@ -306,6 +307,20 @@ export async function runEducationCli() {
             status: 'parsed',
             reasons: [],
           });
+          if (write && client) {
+            const news = await publishNewsVersion(
+              client,
+              persisted.version_id,
+              hosts,
+            );
+            console.log(
+              JSON.stringify({
+                event: 'news_processed',
+                document_id: persisted.document_id,
+                ...news,
+              }),
+            );
+          }
           await processDocumentKnowledge({
             versionId: persisted.version_id,
             title: parsed.title,

@@ -28,6 +28,7 @@ export default function RootLayout({
           </Link>
           <nav aria-label="Ana gezinme">
             <Link href="/">Cevabı bul</Link>
+            <Link href="/haberler">Haberler</Link>
             <Link href="/nasil-calisir">Nasıl doğruluyoruz?</Link>
           </nav>
           <span className="header-note">Bilgi, kaynağından.</span>

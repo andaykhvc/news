@@ -5,7 +5,7 @@ import {
   canonicalPath,
 } from '@sak/answers';
 import { Search } from '../components/search';
-import { recentOfficialAnnouncements } from '../lib/product';
+import { newsFeed } from '../lib/product';
 
 export const revalidate = 60;
 
@@ -17,7 +17,7 @@ const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
 
 export default async function Home() {
   const year = currentTurkishYear();
-  const announcements = await recentOfficialAnnouncements();
+  const announcements = await newsFeed();
   return (
     <>
       <section className="hero">
@@ -54,7 +54,7 @@ export default async function Home() {
         <div className="section-heading">
           <div>
             <p className="eyebrow">Doğrudan resmî kaynaklardan</p>
-            <h2 id="duyurular">Son duyurular</h2>
+            <h2 id="duyurular">Son haberler</h2>
           </div>
           <span>
             {announcements.length
@@ -62,24 +62,23 @@ export default async function Home() {
               : 'İlk başarılı tarama sonrası burada görünür.'}
           </span>
         </div>
+        <Link href="/haberler">Tüm haberler →</Link>
         {announcements.length ? (
           <ol className="announcement-list">
             {announcements.map((announcement) => {
-              const date = announcement.publishedAt ?? announcement.lastSeenAt;
-              const label = announcement.publishedAt
+              const date =
+                announcement.published_at ?? announcement.latest_seen_at;
+              const label = announcement.published_at
                 ? 'Yayın tarihi'
                 : 'Son kontrol';
               return (
                 <li key={announcement.id}>
-                  <a
-                    href={announcement.canonicalUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
+                  <a href={'/haber/' + announcement.id}>
                     <span className="announcement-source">
-                      {announcement.sourceName}
+                      {announcement.source_name}
                     </span>
                     <strong>{announcement.title}</strong>
+                    <span>{announcement.excerpts[0]?.quote}</span>
                     <span className="announcement-date">
                       {label} · {dateFormatter.format(new Date(date))}
                     </span>

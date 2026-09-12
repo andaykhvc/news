@@ -7,7 +7,7 @@ import {
   canonicalPath,
 } from '@sak/answers';
 import { adminConfigured, isAdmin } from '../../lib/security';
-import { database, snapshotForYear } from '../../lib/product';
+import { database, snapshotForYear, newsFeed } from '../../lib/product';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'İşletim paneli',
@@ -77,6 +77,7 @@ export default async function Admin({
     !Array.isArray(report.value[0].data)
       ? (report.value[0].data as Record<string, unknown>)
       : {};
+  const automaticNews = await newsFeed(20);
   const snapshot = answerData.value.snapshot;
   const facts = snapshot.facts;
   const answers = answerResources.map((r) =>
@@ -101,6 +102,26 @@ export default async function Admin({
             : 'İşlem tamamlanamadı. Kaydı yeniden yükleyip kontrol edin.'}
         </p>
       )}
+      <section>
+        <h2>Otomatik haber yayını</h2>
+        <p>
+          Son 20 haber. Her cümle resmî belge sürümündeki birebir alıntıyla
+          doğrulanır. Bu kayıtlar tarih/durum cevaplarının yerine geçmez.
+          Atlanan haberlerin gerekçeleri worker kayıtlarında news_processed
+          olayıyla görünür.
+        </p>
+        <ul>
+          {automaticNews.map((a) => (
+            <li key={a.id}>
+              <Link href={'/haber/' + a.id}>{a.title}</Link> —{' '}
+              {a.excerpts.length} kanıtlı cümle ·{' '}
+              {a.stale
+                ? 'Kaynak kontrolü gecikmiş veya eksik'
+                : 'Kaynak kontrolü güncel'}
+            </li>
+          ))}
+        </ul>
+      </section>
       <section>
         <h2>Kaynak sağlığı ve kapsam</h2>
         <div className="health-grid">

@@ -19,7 +19,12 @@ export function database() {
 }
 export function siteUrl() {
   const value = process.env['PUBLIC_SITE_URL'];
-  if (!value) return 'http://localhost:3000';
+  if (!value) {
+    const domain = process.env['VERCEL_PROJECT_PRODUCTION_URL'];
+    return domain
+      ? new URL('https://' + domain).origin
+      : 'http://localhost:3000';
+  }
   const url = new URL(value);
   if (
     url.username ||
@@ -76,3 +81,26 @@ export const answerFor = cache(
     );
   },
 );
+
+export const newsFeed = cache(async (limit = 24, source?: string) => {
+  const client = database();
+  if (!client) return [];
+  try {
+    const { listNews } = await import('@sak/database');
+    return await listNews(client, limit, source);
+  } catch {
+    console.error('news_feed_unavailable');
+    return [];
+  }
+});
+export const newsArticle = cache(async (id: string) => {
+  const client = database();
+  if (!client) return null;
+  try {
+    const { getNews } = await import('@sak/database');
+    return await getNews(client, id);
+  } catch {
+    console.error('news_article_unavailable');
+    return null;
+  }
+});

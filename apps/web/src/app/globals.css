@@ -878,3 +878,34 @@ summary {
     scroll-behavior: auto;
   }
 }
+
+.news-article {
+  padding-top: 40px;
+  padding-bottom: 64px;
+}
+.news-article h1 {
+  font-size: clamp(1.8rem, 5vw, 3rem);
+  overflow-wrap: anywhere;
+}
+.news-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 24px 0;
+}
+.official-action {
+  display: inline-block;
+  background: #163d30;
+  color: #fff;
+  padding: 14px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 700;
+}
+.official-action:focus-visible {
+  outline: 3px solid #d18d24;
+  outline-offset: 3px;
+}
+.news-article details {
+  overflow-wrap: anywhere;
+}

@@ -1,3 +1,6 @@
+-- On fresh installs the following registry rows are supplied by seed.sql.
+do $$ begin
+if exists(select 1 from public.sources where id='00000000-0000-4000-8000-000000000001') then
 -- ÖSYM links the placement statistics attachment from its own cdn host. The
 -- YKS group archive keeps result announcements discoverable after they leave
 -- the general rolling list.
@@ -14,3 +17,6 @@ on conflict(source_id,slug) do update set
   status=excluded.status,
   poll_interval_seconds=excluded.poll_interval_seconds,
   updated_at=excluded.updated_at;
+
+end if;
+end $$;
