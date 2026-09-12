@@ -5,15 +5,10 @@ import {
   canonicalPath,
 } from '@sak/answers';
 import { Search } from '../components/search';
+import { NewsDate } from '../components/news-date';
 import { newsFeed } from '../lib/product';
 
 export const revalidate = 60;
-
-const dateFormatter = new Intl.DateTimeFormat('tr-TR', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
 
 export default async function Home() {
   const year = currentTurkishYear();
@@ -66,11 +61,6 @@ export default async function Home() {
         {announcements.length ? (
           <ol className="announcement-list">
             {announcements.map((announcement) => {
-              const date =
-                announcement.published_at ?? announcement.latest_seen_at;
-              const label = announcement.published_at
-                ? 'Yayın tarihi'
-                : 'Son kontrol';
               return (
                 <li key={announcement.id}>
                   <a href={'/haber/' + announcement.id}>
@@ -79,9 +69,10 @@ export default async function Home() {
                     </span>
                     <strong>{announcement.title}</strong>
                     <span>{announcement.excerpts[0]?.quote}</span>
-                    <span className="announcement-date">
-                      {label} · {dateFormatter.format(new Date(date))}
-                    </span>
+                    <NewsDate
+                      publishedAt={announcement.published_at}
+                      checkedAt={announcement.latest_seen_at}
+                    />
                     <span aria-hidden="true">↗</span>
                   </a>
                 </li>

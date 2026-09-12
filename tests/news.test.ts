@@ -1,3 +1,4 @@
+import { formatDate } from '../packages/answers/src/index';
 import { randomUUID } from 'node:crypto';
 import { readFile, readdir } from 'node:fs/promises';
 import { PGlite } from '@electric-sql/pglite';
@@ -281,4 +282,27 @@ it('reads the MEB article publication date, excluding unrelated sidebar dates', 
     educationProfiles.meb,
   );
   expect(parsed.published_at).toBe('2026-09-07T11:53:00.000Z');
+});
+
+it('keeps source publication separate from recrawl/edition dates across database timezones', async () => {
+  const doc = await save();
+  await doc.archive();
+  await publishNewsVersion(client, doc.version_id, registry.hosts);
+  const again = await save(doc.parsed.canonical_url);
+  await again.archive();
+  await publishNewsVersion(client, again.version_id, registry.hosts);
+  for (const zone of ['UTC', 'Europe/Istanbul', 'America/Los_Angeles']) {
+    await client.query("select set_config('TimeZone',$1,false)", [zone]);
+    const article = (await listNews(client, 200, 'osym')).find(
+      (a) => a.id === doc.document_id,
+    )!;
+    expect(article.published_at).toBe('2026-07-20T21:00:00.000Z');
+    expect(article.published_at).not.toBe(article.latest_seen_at);
+    expect(article.published_at).not.toBe(article.verified_at);
+    expect(formatDate(article.published_at!)).toBe('21 Temmuz 2026');
+    expect((await getNews(client, doc.document_id))?.published_at).toBe(
+      article.published_at,
+    );
+  }
+  await client.query("select set_config('TimeZone','UTC',false)");
 });
