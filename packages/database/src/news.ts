@@ -40,11 +40,13 @@ const articleSchema = z.object({
     }),
   ),
   actions: z.array(z.object({ label: z.string(), url: z.string() })),
+  links: z.array(z.object({ text: z.string(), url: z.string() })),
 });
 export type NewsArticle = z.infer<typeof articleSchema>;
 const selection = `
  select d.id,v.id version_id,v.title,d.canonical_url,s.name source_name,s.slug source_slug,
  v.published_at,n.created_at verified_at,d.latest_seen_at,
+ coalesce(v.metadata->'official_links','[]'::jsonb) links,
  (d.latest_seen_at<now()-make_interval(secs=>greatest(e.poll_interval_seconds*3,3600))
  or e.last_successful_check_at is null
  or e.last_successful_check_at<now()-make_interval(secs=>greatest(e.poll_interval_seconds*3,3600))

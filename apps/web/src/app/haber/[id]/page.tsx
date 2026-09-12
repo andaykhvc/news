@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { newsArticle, siteUrl } from '../../../lib/product';
+import { LinkedText } from '../../../components/linked-text';
 import { formatDate } from '@sak/answers';
 
 export const dynamic = 'force-dynamic';
@@ -73,7 +74,7 @@ export default async function Article({ params }: Props) {
       <section aria-label="Resmî duyurudan haber içeriği">
         {article.excerpts.map((e) => (
           <p key={e.id} data-evidence-id={e.id}>
-            {e.quote}
+            <LinkedText text={e.quote} links={article.links} />
           </p>
         ))}
       </section>
