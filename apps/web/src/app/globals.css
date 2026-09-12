@@ -909,3 +909,14 @@ summary {
 .news-article details {
   overflow-wrap: anywhere;
 }
+
+.inline-source-link {
+  color: var(--accent, #14643d);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  overflow-wrap: anywhere;
+}
+.inline-source-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}

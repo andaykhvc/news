@@ -14,6 +14,7 @@ import {
   siteUrl,
   newsArticle,
 } from '../../../../lib/product';
+import { LinkedText } from '../../../../components/linked-text';
 import { Search } from '../../../../components/search';
 type Props = {
   params: Promise<{ group: string; year: string; event: string }>;
@@ -179,7 +180,9 @@ export default async function AnswerPage({ params }: Props) {
           <h2>Resmî duyurunun içeriği</h2>
           <p>{news.source_name} tarafından yayımlanan duyurudan:</p>
           {news.excerpts.map((e) => (
-            <p key={e.id}>{e.quote}</p>
+            <p key={e.id}>
+              <LinkedText text={e.quote} links={news.links} />
+            </p>
           ))}
           <Link href={'/haber/' + news.id}>Haber ve kaynak geçmişi →</Link>
         </section>
@@ -215,7 +218,12 @@ export default async function AnswerPage({ params }: Props) {
                   : 'Belgede doğrulanamadı'}{' '}
                 · {e.locator}
               </p>
-              <blockquote>{e.excerpt}</blockquote>
+              <blockquote>
+                <LinkedText
+                  text={e.excerpt}
+                  links={news?.version_id === e.versionId ? news.links : []}
+                />
+              </blockquote>
               <p className="muted">
                 Yukarıdaki alıntı resmî belgedendir. Cevap, bu belgeden
                 çıkarılan doğrulanmış bilgiyi Şak Haber’in Türkçe şablonuyla
