@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { NewsDate } from '../../components/news-date';
 import { newsFeed } from '../../lib/product';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -47,13 +48,10 @@ export default async function News({
               <span className="announcement-source">{a.source_name}</span>
               <strong>{a.title}</strong>
               <span>{a.excerpts[0]?.quote}</span>
-              <span className="announcement-date">
-                {a.published_at
-                  ? new Date(a.published_at).toLocaleDateString('tr-TR', {
-                      timeZone: 'Europe/Istanbul',
-                    })
-                  : 'Yayın tarihi belirlenemedi'}
-              </span>
+              <NewsDate
+                publishedAt={a.published_at}
+                checkedAt={a.latest_seen_at}
+              />
             </Link>
           </li>
         ))}
