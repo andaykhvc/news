@@ -1,0 +1,39 @@
+[
+  {
+    "id": "trt-haber",
+    "name": "TRT Haber",
+    "status": "active",
+    "hosts": ["www.trthaber.com"],
+    "family": "trt",
+    "reliability": 0.6,
+    "discovery": [
+      { "kind": "rss", "url": "https://www.trthaber.com/sondakika.rss" }
+    ],
+    "articleSelector": ".news-content",
+    "titleSelector": "h1",
+    "intervalSeconds": 900,
+    "delayMs": 2000,
+    "maxReports": 20,
+    "maxPages": 3
+  },
+  {
+    "id": "anadolu-ajansi",
+    "name": "Anadolu Ajansı",
+    "status": "active",
+    "hosts": ["www.aa.com.tr"],
+    "family": "aa",
+    "reliability": 0.6,
+    "discovery": [
+      {
+        "kind": "rss",
+        "url": "https://www.aa.com.tr/tr/rss/default?cat=guncel"
+      }
+    ],
+    "articleSelector": ".embed-responsive.prose",
+    "titleSelector": "h1",
+    "intervalSeconds": 900,
+    "delayMs": 2000,
+    "maxReports": 20,
+    "maxPages": 3
+  }
+]

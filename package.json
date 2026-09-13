@@ -26,7 +26,9 @@
     "test:e2e": "playwright test",
     "worker:scheduler": "pnpm --filter @sak/worker start --scheduler",
     "env:check": "tsx scripts/check-environment.ts",
-    "data:check": "tsx scripts/check-answer-data.ts"
+    "data:check": "tsx scripts/check-answer-data.ts",
+    "intelligence": "pnpm --filter @sak/worker start --intelligence",
+    "intelligence:demo": "tsx scripts/demo-intelligence.ts"
   },
   "devDependencies": {
     "@electric-sql/pglite": "0.5.8",

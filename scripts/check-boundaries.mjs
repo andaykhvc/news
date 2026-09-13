@@ -8,7 +8,8 @@ const allowed = {
   'source-sdk': ['domain', 'shared', 'validation'],
   ingestion: ['domain', 'shared', 'validation', 'source-sdk'],
   answers: ['domain', 'validation'],
-  database: ['domain', 'ingestion', 'answers'],
+  database: ['domain', 'ingestion', 'answers', 'news-intelligence'],
+  'news-intelligence': ['source-sdk'],
 };
 for (const [name, dependencies] of Object.entries(allowed)) {
   const pkg = JSON.parse(

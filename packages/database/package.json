@@ -22,6 +22,7 @@
     "@sak/domain": "workspace:*",
     "@sak/ingestion": "workspace:*",
     "postgres": "3.4.8",
-    "zod": "4.5.4"
+    "zod": "4.5.4",
+    "@sak/news-intelligence": "workspace:*"
   }
 }

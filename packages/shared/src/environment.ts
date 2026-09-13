@@ -34,13 +34,19 @@ export function environmentProblems(
     try {
       const url = new URL(value);
       if (
-        !['postgres:', 'postgresql:'].includes(url.protocol) ||
+        !(
+          key === 'PUBLIC_SITE_URL'
+            ? ['http:', 'https:']
+            : ['postgres:', 'postgresql:']
+        ).includes(url.protocol) ||
         !url.hostname ||
-        !url.username ||
+        (key === 'DATABASE_URL' && !url.username) ||
         !url.pathname ||
         url.hash
       )
-        errors.push(`${key}: use a complete PostgreSQL connection URL`);
+        errors.push(
+          `${key}: use a complete ${key === 'PUBLIC_SITE_URL' ? 'HTTP(S) site' : 'PostgreSQL connection'} URL`,
+        );
     } catch {
       errors.push(`${key}: invalid URL`);
     }
@@ -59,5 +65,30 @@ export function environmentProblems(
     );
   if (env['WORKER_CONCURRENCY'] && !/^[1-4]$/.test(env['WORKER_CONCURRENCY']!))
     errors.push('WORKER_CONCURRENCY: choose 1–4');
+  if (env['NEWS_CONCURRENCY'] && !/^[1-4]$/.test(env['NEWS_CONCURRENCY']))
+    errors.push('NEWS_CONCURRENCY: choose 1–4');
+  if (
+    env['NEWS_USER_AGENT'] &&
+    !env['NEWS_USER_AGENT'].startsWith('SakHaberBot/')
+  )
+    errors.push(
+      'NEWS_USER_AGENT: must start with SakHaberBot/ to match robots policy',
+    );
+  if (env['NEWS_ANALYSIS_URL']) {
+    try {
+      const url = new URL(env['NEWS_ANALYSIS_URL']);
+      if (url.protocol !== 'https:' || url.username || url.password)
+        errors.push('NEWS_ANALYSIS_URL: HTTPS gateway URL required');
+    } catch {
+      errors.push('NEWS_ANALYSIS_URL: invalid URL');
+    }
+  }
+  if (
+    (env['NEWS_ANALYSIS_MODEL'] || env['NEWS_ANALYSIS_KEY']) &&
+    !env['NEWS_ANALYSIS_URL']
+  )
+    errors.push(
+      'NEWS_ANALYSIS_URL: required when a model or key is configured',
+    );
   return errors;
 }
