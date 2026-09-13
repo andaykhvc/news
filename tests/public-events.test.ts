@@ -10,6 +10,11 @@ import { processReport } from '../packages/news-intelligence/src/index';
 import { publicEvent } from '../packages/database/src/public-events';
 import { combineNews } from '../apps/web/src/lib/news-feed';
 import { NewsList } from '../apps/web/src/components/news-list';
+import {
+  inferNewsCategory,
+  isBreakingNews,
+  newsFilters,
+} from '../apps/web/src/lib/news-categories';
 import { scenario, fixtureSource } from './intelligence-fixtures';
 async function row() {
   const reports = scenario()
@@ -95,4 +100,98 @@ it('degrades source-health messaging and recomputes corroboration after a source
   expect(event.stale).toBe(true);
   expect(event.conflicts).toBe(false);
   expect(event.claims.every((c) => c.status === 'weakly_supported')).toBe(true);
+});
+it('assigns deterministic topic categories and treats breaking news as a time filter', () => {
+  expect(newsFilters.map((item) => item.label)).toEqual([
+    'Son Dakika',
+    'Gündem',
+    'Spor',
+    'Yaşam',
+    'Eğitim',
+    'Ekonomi',
+    'Dünya',
+  ]);
+  expect(
+    inferNewsCategory({
+      title: 'Milli judocu bronz madalya aldı',
+      excerpt: '',
+      eventKind: 'sports',
+    }),
+  ).toBe('spor');
+  expect(
+    inferNewsCategory({
+      title: 'Şehir hastanesinde sağlık hizmetleri başladı',
+      excerpt: '',
+    }),
+  ).toBe('yasam');
+  expect(
+    inferNewsCategory({
+      title: 'Vergi denetimlerinde yeni dönem',
+      excerpt: '',
+    }),
+  ).toBe('ekonomi');
+  expect(
+    inferNewsCategory({
+      title: 'Sınav tercih tarihleri açıklandı',
+      excerpt: '',
+      sourceSlug: 'osym',
+    }),
+  ).toBe('egitim');
+  expect(
+    inferNewsCategory({
+      title: 'Rusya ve Ukrayna heyetleri görüştü',
+      excerpt: '',
+    }),
+  ).toBe('dunya');
+  expect(
+    inferNewsCategory({ title: 'Yeni açıklama yapıldı', excerpt: '' }),
+  ).toBe('gundem');
+  expect(
+    inferNewsCategory({
+      title: 'Şehirler arası yolda kaza',
+      excerpt: 'Sağlık ekipleri yaralıları hastaneye götürdü.',
+      eventKind: 'traffic_accident',
+    }),
+  ).toBe('gundem');
+  expect(
+    inferNewsCategory({
+      title: 'İsrail basınından yeni değerlendirme',
+      excerpt: 'Haberde ekonomi ve yatırımlardan da söz edildi.',
+      eventKind: 'politics',
+    }),
+  ).toBe('dunya');
+  expect(isBreakingNews('2026-09-13T09:00:00Z', '2026-09-14T08:59:59Z')).toBe(
+    true,
+  );
+  expect(isBreakingNews('2026-09-13T09:00:00Z', '2026-09-14T09:00:01Z')).toBe(
+    false,
+  );
+  expect(isBreakingNews(null, '2026-09-14T09:00:00Z')).toBe(false);
+});
+it('filters event cards by topic and latest 24 hours before applying the feed limit', async () => {
+  const event = publicEvent(await row(), '2026-09-10T10:01:00Z')!;
+  const sports = {
+    ...event,
+    id: 'a'.repeat(64),
+    eventKind: 'sports',
+    title: 'Milli takım maçı kazandı',
+    publishedAt: '2026-09-10T09:30:00Z',
+  };
+  const life = {
+    ...event,
+    id: 'b'.repeat(64),
+    eventKind: 'general',
+    title: 'Yeni kültür festivali başladı',
+    publishedAt: '2026-09-08T09:30:00Z',
+  };
+  expect(
+    combineNews([], [life, sports], { category: 'spor', limit: 1 }),
+  ).toMatchObject([{ id: sports.id, category: 'spor' }]);
+  expect(
+    combineNews([], [life, sports], {
+      category: 'son-dakika',
+      now: '2026-09-10T10:00:00Z',
+      limit: 10,
+    }),
+  ).toMatchObject([{ id: sports.id }]);
 });

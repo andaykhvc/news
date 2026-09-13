@@ -4,6 +4,10 @@ import { notFound } from 'next/navigation';
 import { formatDate } from '@sak/answers';
 import { eventArticle } from '../../../lib/product';
 import { NewsDate } from '../../../components/news-date';
+import {
+  eventCategory,
+  newsCategoryLabels,
+} from '../../../lib/news-categories';
 export const dynamic = 'force-dynamic';
 type Props = { params: Promise<{ id: string }> };
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -33,7 +37,8 @@ export default async function EventPage({ params }: Props) {
     <article className="wrap narrow prose news-article">
       <Link href="/haberler">← Haberler</Link>
       <p className="eyebrow">
-        Gündem · {[...new Set(event.sources.map((s) => s.name))].join(' · ')}
+        {newsCategoryLabels[eventCategory(event)]} ·{' '}
+        {[...new Set(event.sources.map((s) => s.name))].join(' · ')}
       </p>
       <h1>{event.title}</h1>
       <NewsDate publishedAt={event.publishedAt} checkedAt={event.checkedAt} />

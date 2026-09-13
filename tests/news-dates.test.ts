@@ -29,6 +29,7 @@ vi.mock('../apps/web/src/lib/product', () => ({
       updatedAt: a.latest_seen_at,
       stale: false,
       kind: 'official',
+      category: 'egitim',
       conflicts: false,
     })),
 }));

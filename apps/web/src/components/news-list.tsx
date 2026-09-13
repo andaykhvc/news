@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { NewsDate } from './news-date';
 import type { FeedItem } from '../lib/news-feed';
+import { newsCategoryLabels } from '../lib/news-categories';
 export function NewsList({ items }: { items: FeedItem[] }) {
   return (
     <ol className="announcement-list">
@@ -8,8 +9,7 @@ export function NewsList({ items }: { items: FeedItem[] }) {
         <li key={item.id}>
           <Link href={item.href} prefetch={false}>
             <span className="announcement-source">
-              {item.source} ·{' '}
-              {item.kind === 'official' ? 'Resmî duyuru' : 'Gündem'}
+              {newsCategoryLabels[item.category]} · {item.source}
             </span>
             <strong>{item.title}</strong>
             <span className="announcement-excerpt">{item.excerpt}</span>
