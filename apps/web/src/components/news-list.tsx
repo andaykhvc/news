@@ -12,12 +12,19 @@ export function NewsList({ items }: { items: FeedItem[] }) {
               {item.kind === 'official' ? 'Resmî duyuru' : 'Gündem'}
             </span>
             <strong>{item.title}</strong>
-            <span>{item.excerpt}</span>
+            <span className="announcement-excerpt">{item.excerpt}</span>
             <NewsDate
               publishedAt={item.publishedAt}
               checkedAt={item.checkedAt}
             />
-            {item.conflicts && <span>Kaynaklarda farklı bilgiler var</span>}
+            {item.conflicts && (
+              <span className="announcement-conflict">
+                Kaynaklarda farklı bilgiler var
+              </span>
+            )}
+            <span className="announcement-arrow" aria-hidden="true">
+              ↗
+            </span>
           </Link>
         </li>
       ))}
