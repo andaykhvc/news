@@ -313,6 +313,17 @@ nav a {
   font-size: 13px;
   text-decoration: none;
 }
+.category-nav a[aria-current='page'] {
+  color: #fff;
+  background: var(--green);
+  border-color: var(--green);
+}
+.source-filters {
+  margin-top: -12px;
+}
+.news-category-nav {
+  margin-top: 18px;
+}
 .category-nav span {
   margin-left: 20px;
 }

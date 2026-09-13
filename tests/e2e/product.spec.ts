@@ -64,8 +64,14 @@ test('news feed exposes open-web source filters and unknown event pages fail saf
   await expect(
     page.getByRole('heading', { name: 'Gündem ve haberler' }),
   ).toBeVisible();
+  await page.getByRole('link', { name: 'Spor', exact: true }).click();
+  await expect(page).toHaveURL(/kategori=spor/);
+  await expect(
+    page.getByRole('link', { name: 'Spor', exact: true }),
+  ).toHaveAttribute('aria-current', 'page');
   await page.getByRole('link', { name: 'TRT Haber', exact: true }).click();
   await expect(page).toHaveURL(/kaynak=trt-haber/);
+  await expect(page).toHaveURL(/kategori=spor/);
   await page.getByRole('link', { name: 'Anadolu Ajansı', exact: true }).click();
   await expect(page).toHaveURL(/kaynak=anadolu-ajansi/);
   const response = await page.goto('/olay/' + 'f'.repeat(64));

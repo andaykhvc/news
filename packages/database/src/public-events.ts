@@ -92,6 +92,7 @@ export function publicEvent(
     .sort();
   return {
     id: row.id,
+    eventKind: row.snapshot.kind,
     title: primary.report.title,
     publishedAt: primary.report.publishedAt,
     updatedAt: row.snapshot.updatedAt,

@@ -7,6 +7,7 @@ import {
 import { Search } from '../components/search';
 import { NewsList } from '../components/news-list';
 import { newsFeed } from '../lib/product';
+import { newsFilters } from '../lib/news-categories';
 
 export const revalidate = 60;
 
@@ -58,6 +59,16 @@ export default async function Home() {
           </span>
         </div>
         <Link href="/haberler">Tüm haberler →</Link>
+        <nav
+          className="category-nav news-category-nav"
+          aria-label="Haber kategorileri"
+        >
+          {newsFilters.map((item) => (
+            <Link key={item.key} href={'/haberler?kategori=' + item.key}>
+              {item.label}
+            </Link>
+          ))}
+        </nav>
         {announcements.length ? (
           <NewsList items={announcements} />
         ) : (
