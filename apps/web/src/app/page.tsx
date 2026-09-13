@@ -5,7 +5,7 @@ import {
   canonicalPath,
 } from '@sak/answers';
 import { Search } from '../components/search';
-import { NewsDate } from '../components/news-date';
+import { NewsList } from '../components/news-list';
 import { newsFeed } from '../lib/product';
 
 export const revalidate = 60;
@@ -48,40 +48,21 @@ export default async function Home() {
       <section className="announcements wrap" aria-labelledby="duyurular">
         <div className="section-heading">
           <div>
-            <p className="eyebrow">Doğrudan resmî kaynaklardan</p>
+            <p className="eyebrow">Gündem ve resmî duyurular</p>
             <h2 id="duyurular">Son haberler</h2>
           </div>
           <span>
             {announcements.length
-              ? 'Başlıklar kaynak dokümanlardan alınır.'
+              ? 'Kaynaklarıyla birlikte son gelişmeler.'
               : 'İlk başarılı tarama sonrası burada görünür.'}
           </span>
         </div>
         <Link href="/haberler">Tüm haberler →</Link>
         {announcements.length ? (
-          <ol className="announcement-list">
-            {announcements.map((announcement) => {
-              return (
-                <li key={announcement.id}>
-                  <a href={'/haber/' + announcement.id}>
-                    <span className="announcement-source">
-                      {announcement.source_name}
-                    </span>
-                    <strong>{announcement.title}</strong>
-                    <span>{announcement.excerpts[0]?.quote}</span>
-                    <NewsDate
-                      publishedAt={announcement.published_at}
-                      checkedAt={announcement.latest_seen_at}
-                    />
-                    <span aria-hidden="true">↗</span>
-                  </a>
-                </li>
-              );
-            })}
-          </ol>
+          <NewsList items={announcements} />
         ) : (
           <p className="announcement-empty">
-            Henüz gösterilecek resmî duyuru yok. Kaynak taramaları sürüyor.
+            Henüz gösterilecek haber yok. Kaynak taramaları sürüyor.
           </p>
         )}
       </section>

@@ -6,7 +6,7 @@ export function NewsDate({
   checkedAt,
 }: {
   publishedAt: string | null;
-  checkedAt: string;
+  checkedAt: string | null;
 }) {
   return (
     <span className="announcement-date">
@@ -17,8 +17,14 @@ export function NewsDate({
         </>
       ) : (
         <>
-          Yayın tarihi belirlenemedi · Son kontrol:{' '}
-          <time dateTime={checkedAt}>{formatDate(checkedAt)}</time>
+          Yayın tarihi belirlenemedi
+          {checkedAt && (
+            <>
+              {' '}
+              · Son kontrol:{' '}
+              <time dateTime={checkedAt}>{formatDate(checkedAt)}</time>
+            </>
+          )}
         </>
       )}
     </span>

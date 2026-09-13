@@ -21,10 +21,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: siteUrl() + '/nasil-calisir' },
     { url: siteUrl() + '/haberler' },
     ...(await newsFeed(200))
-      .filter((n) => !n.stale)
+      .filter((n) => !n.stale && n.kind === 'official')
       .map((n) => ({
-        url: siteUrl() + '/haber/' + n.id,
-        lastModified: n.verified_at,
+        url: siteUrl() + n.href,
+        lastModified: n.updatedAt,
       })),
     ...answerResources
       .map((r) => resolveAnswer(r, year, snapshot, now, available))
