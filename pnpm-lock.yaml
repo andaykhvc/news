@@ -90,6 +90,9 @@ importers:
       '@sak/ingestion':
         specifier: workspace:*
         version: link:../../packages/ingestion
+      '@sak/news-intelligence':
+        specifier: workspace:*
+        version: link:../../packages/news-intelligence
       '@sak/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -129,6 +132,9 @@ importers:
       '@sak/ingestion':
         specifier: workspace:*
         version: link:../ingestion
+      '@sak/news-intelligence':
+        specifier: workspace:*
+        version: link:../news-intelligence
       postgres:
         specifier: 3.4.8
         version: 3.4.8
@@ -159,6 +165,18 @@ importers:
       pdfjs-dist:
         specifier: 6.3.289
         version: 6.3.289
+      zod:
+        specifier: 4.5.4
+        version: 4.5.4
+
+  packages/news-intelligence:
+    dependencies:
+      '@sak/source-sdk':
+        specifier: workspace:*
+        version: link:../source-sdk
+      cheerio:
+        specifier: 1.2.0
+        version: 1.2.0
       zod:
         specifier: 4.5.4
         version: 4.5.4

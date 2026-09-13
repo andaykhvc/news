@@ -18,6 +18,7 @@
     "@sak/database": "workspace:*",
     "zod": "4.5.4",
     "@sak/education": "workspace:*",
-    "tsx": "4.23.13"
+    "tsx": "4.23.13",
+    "@sak/news-intelligence": "workspace:*"
   }
 }

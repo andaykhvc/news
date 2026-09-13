@@ -85,3 +85,7 @@ pnpm data:check                         # Canlı DB üzerinde salt okunur cevap 
 ```
 
 Worker Docker tanımı: `deploy/worker.Dockerfile`; başlatma ve gizli değişkenler: [docs/deployment.md](docs/deployment.md). Test verileri uygulamaya veya üretim seed'ine import edilmez.
+
+## Açık web olay motoru (Part 1)
+
+Resmî bilgi akışından ayrı News Intelligence worker’ı; RSS/Atom/sitemap keşfi, olay kümeleme, atomik iddialar, kaynak aileleri, çelişkiler ve değişmez kanıt geçmişi üretir. Tüketici sayfalarında yayın yapmaz. Çalıştırma, canlı kaynaklar, demo ve sınırlar: [News Intelligence rehberi](docs/news-intelligence.md).
