@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { NewsDate } from '../../components/news-date';
+import { NewsList } from '../../components/news-list';
 import { newsFeed } from '../../lib/product';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
-  title: 'Resmî kaynaklardan haberler',
+  title: 'Gündem ve haberler',
   alternates: { canonical: '/haberler' },
 };
 export default async function News({
@@ -13,17 +13,25 @@ export default async function News({
   searchParams: Promise<{ kaynak?: string }>;
 }) {
   const source = (await searchParams).kaynak;
-  const allowed = ['osym', 'meb', 'yok', 'gsb', 'yokak'];
+  const allowed = [
+    'trt-haber',
+    'anadolu-ajansi',
+    'osym',
+    'meb',
+    'yok',
+    'gsb',
+    'yokak',
+  ];
   const articles = await newsFeed(
     100,
     source && allowed.includes(source) ? source : undefined,
   );
   return (
     <section className="wrap prose">
-      <h1>Resmî kaynaklardan haberler</h1>
+      <h1>Gündem ve haberler</h1>
       <p>
-        ÖSYM, MEB ve diğer kayıtlı resmî kurumların duyurularından hazırlanan
-        haberler.
+        TRT Haber ve Anadolu Ajansı kaynaklı gelişmeler ile resmî kurum
+        duyuruları. Her haberin kaynağına doğrudan ulaşabilirsin.
       </p>
       <nav className="category-nav" aria-label="Haber kaynakları">
         <Link href="/haberler">Tümü</Link>
@@ -31,6 +39,8 @@ export default async function News({
           <Link key={s} href={'/haberler?kaynak=' + s}>
             {
               {
+                'trt-haber': 'TRT Haber',
+                'anadolu-ajansi': 'Anadolu Ajansı',
                 osym: 'ÖSYM',
                 meb: 'MEB',
                 yok: 'YÖK',
@@ -41,21 +51,7 @@ export default async function News({
           </Link>
         ))}
       </nav>
-      <ol className="announcement-list">
-        {articles.map((a) => (
-          <li key={a.id}>
-            <Link href={'/haber/' + a.id} prefetch={false}>
-              <span className="announcement-source">{a.source_name}</span>
-              <strong>{a.title}</strong>
-              <span>{a.excerpts[0]?.quote}</span>
-              <NewsDate
-                publishedAt={a.published_at}
-                checkedAt={a.latest_seen_at}
-              />
-            </Link>
-          </li>
-        ))}
-      </ol>
+      <NewsList items={articles} />
       {!articles.length && (
         <p>
           Şu anda gösterilecek haber bulunamadı. Kaynak kontrolü tamamlandıkça

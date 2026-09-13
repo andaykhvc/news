@@ -276,3 +276,48 @@ it('synchronizes parser settings without re-enabling disabled sources or resetti
   expect(source?.articleSelector).toBe('.new-parser');
   expect((await repo.quality()).every((c) => c['violations'] === 0)).toBe(true);
 });
+it('public queries serve only live open-web reports and their current revisions, with source filtering', async () => {
+  const { listPublicEvents, getPublicEvent } =
+    await import('../packages/database/src/public-events');
+  const s = sourceSchema.parse({ ...fixtureSource, id: 'public-source' });
+  await repo.register(s);
+  const first = {
+    ...report(
+      s.id,
+      'Ankara Eskişehir yolunda halka açık test haberi',
+      'Ankara Eskişehir yolunda 3 araç çarpıştı. Kazada 2 kişi yaralandı.',
+    ),
+    metadata: {},
+  };
+  await repo.store(first);
+  await repo.process(first, 'live', signal());
+  const firstFeed = await listPublicEvents(client, 24, s.id);
+  expect(firstFeed).toHaveLength(1);
+  expect(firstFeed[0]?.publishedAt).toBe(first.publishedAt);
+  const revised = {
+    ...report(
+      s.id,
+      first.title,
+      first.text.replace('2 kişi', '4 kişi'),
+      '2026-09-10T10:00:00.000Z',
+      first.canonicalUrl,
+    ),
+    metadata: {},
+  };
+  await repo.store(revised);
+  await repo.process(revised, 'live', signal());
+  const event = await getPublicEvent(client, firstFeed[0]!.id);
+  expect(event?.sources).toHaveLength(1);
+  expect(event?.sources[0]?.id).toBe(revised.id);
+  expect(event?.history).toHaveLength(2);
+  expect(
+    event?.claims.find((c) => c.predicate === 'injury_count')?.value,
+  ).toEqual({ type: 'number', value: 4 });
+  expect(await listPublicEvents(client, 24, 'unknown-source')).toHaveLength(0);
+  expect(await getPublicEvent(client, 'bad-id')).toBeNull();
+  await client.query(
+    "update intelligence_sources set status='disabled' where id=$1",
+    [s.id],
+  );
+  expect(await getPublicEvent(client, firstFeed[0]!.id)).toBeNull();
+});

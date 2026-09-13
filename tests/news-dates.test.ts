@@ -17,7 +17,20 @@ const { articles } = vi.hoisted(() => ({
   }[],
 }));
 vi.mock('../apps/web/src/lib/product', () => ({
-  newsFeed: async () => articles,
+  newsFeed: async () =>
+    articles.map((a) => ({
+      id: a.id,
+      href: '/haber/' + a.id,
+      title: a.title,
+      source: a.source_name,
+      excerpt: '',
+      publishedAt: a.published_at,
+      checkedAt: a.latest_seen_at,
+      updatedAt: a.latest_seen_at,
+      stale: false,
+      kind: 'official',
+      conflicts: false,
+    })),
 }));
 const requireWeb = createRequire(
   new URL('../apps/web/package.json', import.meta.url),

@@ -56,3 +56,18 @@ test('unconfigured database stays safely unavailable and admin data remains priv
   });
   expect(mutation.status()).toBe(403);
 });
+
+test('news feed exposes open-web source filters and unknown event pages fail safely', async ({
+  page,
+}) => {
+  await page.goto('/haberler');
+  await expect(
+    page.getByRole('heading', { name: 'Gündem ve haberler' }),
+  ).toBeVisible();
+  await page.getByRole('link', { name: 'TRT Haber', exact: true }).click();
+  await expect(page).toHaveURL(/kaynak=trt-haber/);
+  await page.getByRole('link', { name: 'Anadolu Ajansı', exact: true }).click();
+  await expect(page).toHaveURL(/kaynak=anadolu-ajansi/);
+  const response = await page.goto('/olay/' + 'f'.repeat(64));
+  expect(response?.status()).toBe(404);
+});
