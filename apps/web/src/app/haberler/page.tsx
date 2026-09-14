@@ -2,22 +2,47 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { NewsList } from '../../components/news-list';
 import { newsFeed } from '../../lib/product';
+import {
+  PUBLICATION_NAME,
+  SITE_DESCRIPTION,
+  publicSiteConfigured,
+} from '../../lib/seo';
 import { newsFilters, type NewsFilter } from '../../lib/news-categories';
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = {
-  title: 'Gündem ve haberler',
-  alternates: { canonical: '/haberler' },
-};
+
+type SearchParams = Record<string, string | string[] | undefined>;
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const hasQuery = Object.keys(params).length > 0;
+  const title = 'Gündem ve haberler';
+  const description = `${SITE_DESCRIPTION} TRT Haber, Anadolu Ajansı ve kayıtlı resmî kurum kaynaklarından haberler.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: '/haberler' },
+    robots: { index: publicSiteConfigured() && !hasQuery, follow: true },
+    openGraph: {
+      type: 'website',
+      locale: 'tr_TR',
+      siteName: PUBLICATION_NAME,
+      title,
+      description,
+      url: '/haberler',
+    },
+  };
+}
 export default async function News({
   searchParams,
 }: {
-  searchParams: Promise<{ kaynak?: string; kategori?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const parameters = await searchParams;
-  const source = parameters.kaynak;
-  const category = newsFilters.some((item) => item.key === parameters.kategori)
-    ? (parameters.kategori as NewsFilter)
-    : undefined;
+  const params = await searchParams;
+  const source = typeof params.kaynak === 'string' ? params.kaynak : undefined;
   const allowed = [
     'trt-haber',
     'anadolu-ajansi',
@@ -27,6 +52,11 @@ export default async function News({
     'gsb',
     'yokak',
   ];
+  const categoryParam =
+    typeof params.kategori === 'string' ? params.kategori : undefined;
+  const category = newsFilters.some((item) => item.key === categoryParam)
+    ? (categoryParam as NewsFilter)
+    : undefined;
   const articles = await newsFeed(
     100,
     source && allowed.includes(source) ? source : undefined,

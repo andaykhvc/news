@@ -2,8 +2,10 @@ import Link from 'next/link';
 export default function NotFound() {
   return (
     <section className="wrap narrow prose">
-      <h1>Bu cevap sayfası yok.</h1>
-      <p>Bir konu ve yıl seçerek yeniden arayabilirsin.</p>
+      <h1>Bu sayfa yok.</h1>
+      <p>
+        Aradığın içerik kaldırılmış, taşınmış veya hiç yayımlanmamış olabilir.
+      </p>
       <Link href="/">Ana sayfaya dön ↗</Link>
     </section>
   );

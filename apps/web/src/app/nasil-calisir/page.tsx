@@ -1,3 +1,13 @@
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { SITE_DESCRIPTION } from '../../lib/seo';
+
+export const metadata: Metadata = {
+  title: 'Nasıl doğruluyoruz?',
+  description: `${SITE_DESCRIPTION} Kaynak, kanıt ve güncellik yöntemimizi açıklıyoruz.`,
+  alternates: { canonical: '/nasil-calisir' },
+};
+
 export default function Method() {
   return (
     <article className="wrap narrow prose">
@@ -41,6 +51,7 @@ export default function Method() {
         mı?” geri bildirimi ve anonim eksik konu bildirimleri inceleme sıramızı
         geliştirir.
       </p>
+      <Link href="/haberler">Resmî kaynaklardan haberleri incele ↗</Link>
     </article>
   );
 }

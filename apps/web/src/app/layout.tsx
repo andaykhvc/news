@@ -1,22 +1,50 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import {
+  PUBLICATION_NAME,
+  SITE_DESCRIPTION,
+  llmsTxtUrl,
+  serializeJsonLd,
+  siteStructuredData,
+  publicSiteConfigured,
+} from '../lib/seo';
 import { siteUrl } from '../lib/product';
 import './globals.css';
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: 'Şak Haber — Sorunun cevabı, resmî kaynağıyla.',
+    default: `${PUBLICATION_NAME} — Sorunun cevabı, resmî kaynağıyla.`,
     template: '%s | Şak Haber',
   },
-  description:
-    'Sınav, üniversite, okul ve KYK sorularına doğrulanmış bilgiler ve açık resmî kaynaklarla cevap.',
-  robots: { index: !!process.env['PUBLIC_SITE_URL'], follow: true },
+  description: SITE_DESCRIPTION,
+  alternates: { canonical: '/' },
+  robots: {
+    index: publicSiteConfigured(),
+    follow: true,
+    'max-image-preview': 'large',
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'tr_TR',
+    siteName: PUBLICATION_NAME,
+    title: `${PUBLICATION_NAME} — Sorunun cevabı, resmî kaynağıyla.`,
+    description: SITE_DESCRIPTION,
+    url: siteUrl(),
+  },
+  twitter: {
+    card: 'summary',
+    title: `${PUBLICATION_NAME} — Sorunun cevabı, resmî kaynağıyla.`,
+    description: SITE_DESCRIPTION,
+  },
 };
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="tr">
+      <head>
+        <link rel="describedby" type="text/plain" href={llmsTxtUrl()} />
+      </head>
       <body>
         <a className="skip" href="#icerik">
           İçeriğe geç
@@ -48,6 +76,12 @@ export default function RootLayout({
             değildir.
           </small>
         </footer>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: serializeJsonLd(siteStructuredData()),
+          }}
+        />
       </body>
     </html>
   );

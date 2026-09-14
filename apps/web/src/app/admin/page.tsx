@@ -8,6 +8,7 @@ import {
 } from '@sak/answers';
 import { adminConfigured, isAdmin } from '../../lib/security';
 import { database, snapshotForYear, officialNewsFeed } from '../../lib/product';
+import { publicArticlePath } from '../../lib/seo';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'İşletim paneli',
@@ -113,7 +114,7 @@ export default async function Admin({
         <ul>
           {automaticNews.map((a) => (
             <li key={a.id}>
-              <Link href={'/haber/' + a.id}>{a.title}</Link> —{' '}
+              <Link href={publicArticlePath(a.id)}>{a.title}</Link> —{' '}
               {a.excerpts.length} kanıtlı cümle ·{' '}
               {a.stale
                 ? 'Kaynak kontrolü gecikmiş veya eksik'

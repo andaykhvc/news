@@ -14,6 +14,7 @@ import {
   siteUrl,
   newsArticle,
 } from '../../../../lib/product';
+import { publicArticlePath } from '../../../../lib/seo';
 import { LinkedText } from '../../../../components/linked-text';
 import { Search } from '../../../../components/search';
 type Props = {
@@ -184,7 +185,9 @@ export default async function AnswerPage({ params }: Props) {
               <LinkedText text={e.quote} links={news.links} />
             </p>
           ))}
-          <Link href={'/haber/' + news.id}>Haber ve kaynak geçmişi →</Link>
+          <Link href={publicArticlePath(news.id)}>
+            Haber ve kaynak geçmişi →
+          </Link>
         </section>
       )}
       <section id="kanit" className="evidence-section">

@@ -1,3 +1,12 @@
+import type { Metadata } from 'next';
+import { SITE_DESCRIPTION } from '../../lib/seo';
+
+export const metadata: Metadata = {
+  title: 'Gizlilik',
+  description: `${SITE_DESCRIPTION} Arama, geri bildirim ve teknik kayıtların nasıl işlendiğini açıklıyoruz.`,
+  alternates: { canonical: '/gizlilik' },
+};
+
 export default function Privacy() {
   return (
     <article className="wrap narrow prose">
