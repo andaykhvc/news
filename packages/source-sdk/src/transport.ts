@@ -18,7 +18,7 @@ export function createPinnedTransport(options: {
     throw new Error('A descriptive crawler User-Agent is required');
   const queues = new Map<string, Promise<void>>();
   const last = new Map<string, number>();
-  return async (url, { signal }) => {
+  return async (url, { signal, headers: conditional }) => {
     const target = new URL(url);
     if (target.protocol !== 'https:' || (target.port && target.port !== '443'))
       throw new Error('HTTPS only');
@@ -56,9 +56,15 @@ export function createPinnedTransport(options: {
           signal,
           headers: {
             'user-agent': options.userAgent,
+            ...(conditional?.['if-none-match']
+              ? { 'if-none-match': conditional['if-none-match'] }
+              : {}),
+            ...(conditional?.['if-modified-since']
+              ? { 'if-modified-since': conditional['if-modified-since'] }
+              : {}),
             'accept-encoding': 'identity',
             accept:
-              'text/html,application/pdf,application/json;q=0.9,text/plain;q=0.8',
+              'text/html,application/xml,application/rss+xml,application/atom+xml,application/pdf,application/json;q=0.9,text/plain;q=0.8',
           },
           lookup: (_host, _options, callback) => callback(null, [pinned]),
         },
@@ -76,11 +82,17 @@ export function createPinnedTransport(options: {
             if (v !== undefined)
               headers.set(k, Array.isArray(v) ? v.join(', ') : v);
           }
+          if ([204, 304].includes(res.statusCode ?? 0)) res.resume();
           resolve(
-            new Response(Readable.toWeb(res) as ReadableStream<Uint8Array>, {
-              status: res.statusCode ?? 502,
-              headers,
-            }),
+            new Response(
+              [204, 304].includes(res.statusCode ?? 0)
+                ? null
+                : (Readable.toWeb(res) as ReadableStream<Uint8Array>),
+              {
+                status: res.statusCode ?? 502,
+                headers,
+              },
+            ),
           );
         },
       );

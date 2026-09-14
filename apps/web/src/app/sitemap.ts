@@ -23,9 +23,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: siteUrl() + '/gizlilik' },
     { url: siteUrl() + '/haberler' },
     ...(await newsFeed(200))
-      .filter((n) => !n.stale)
+      .filter((n) => !n.stale && n.kind === 'official')
       .map((n) => ({
         url: siteUrl() + publicArticlePath(n.id),
+        lastModified: n.updatedAt,
       })),
     ...answerResources
       .map((r) => resolveAnswer(r, year, snapshot, now, available))

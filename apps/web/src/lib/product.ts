@@ -1,5 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
+import { combineNews } from './news-feed';
+import type { NewsFilter } from './news-categories';
 import {
   createDatabaseClient,
   databaseEnvironmentSchema,
@@ -67,7 +69,7 @@ export const answerFor = cache(
   },
 );
 
-export const newsFeed = cache(async (limit = 24, source?: string) => {
+export const officialNewsFeed = cache(async (limit = 24, source?: string) => {
   const client = database();
   if (!client) return [];
   try {
@@ -89,3 +91,34 @@ export const newsArticle = cache(async (id: string) => {
     return null;
   }
 });
+
+export const eventArticle = cache(async (id: string) => {
+  const client = database();
+  if (!client) return null;
+  try {
+    const { getPublicEvent } = await import('@sak/database');
+    return await getPublicEvent(client, id);
+  } catch {
+    console.error('event_article_unavailable');
+    return null;
+  }
+});
+export const newsFeed = cache(
+  async (limit = 24, source?: string, category?: NewsFilter) => {
+    const client = database();
+    if (!client) return [];
+    const { listPublicEvents } = await import('@sak/database');
+    const readLimit = category ? 200 : limit;
+    const results = await Promise.allSettled([
+      officialNewsFeed(readLimit, source),
+      listPublicEvents(client, readLimit, source),
+    ]);
+    if (results[1].status === 'rejected')
+      console.error('event_feed_unavailable');
+    return combineNews(
+      results[0].status === 'fulfilled' ? results[0].value : [],
+      results[1].status === 'fulfilled' ? results[1].value : [],
+      { limit, category },
+    );
+  },
+);

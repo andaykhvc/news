@@ -7,7 +7,7 @@ import {
   canonicalPath,
 } from '@sak/answers';
 import { adminConfigured, isAdmin } from '../../lib/security';
-import { database, snapshotForYear, newsFeed } from '../../lib/product';
+import { database, snapshotForYear, officialNewsFeed } from '../../lib/product';
 import { publicArticlePath } from '../../lib/seo';
 export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
@@ -78,7 +78,7 @@ export default async function Admin({
     !Array.isArray(report.value[0].data)
       ? (report.value[0].data as Record<string, unknown>)
       : {};
-  const automaticNews = await newsFeed(20);
+  const automaticNews = await officialNewsFeed(20);
   const snapshot = answerData.value.snapshot;
   const facts = snapshot.facts;
   const answers = answerResources.map((r) =>

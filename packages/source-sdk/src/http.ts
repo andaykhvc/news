@@ -7,7 +7,11 @@ import type { AdapterResult, FetchedDocument, HttpClient } from './contracts';
 // before enabling a real network adapter. Tests use fixture-backed transports.
 export type HttpTransport = (
   url: string,
-  options: { redirect: 'manual'; signal: AbortSignal },
+  options: {
+    redirect: 'manual';
+    signal: AbortSignal;
+    headers?: Record<string, string>;
+  },
 ) => Promise<Response>;
 
 export function createHttpClient(options: {
