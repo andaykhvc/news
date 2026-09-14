@@ -6,6 +6,7 @@ import {
   resolveAnswer,
 } from '@sak/answers';
 import { snapshotForYear, siteUrl, newsFeed } from '../lib/product';
+import { publicArticlePath } from '../lib/seo';
 export const dynamic = 'force-dynamic';
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   if (
@@ -19,12 +20,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: siteUrl() },
     { url: siteUrl() + '/nasil-calisir' },
+    { url: siteUrl() + '/gizlilik' },
     { url: siteUrl() + '/haberler' },
     ...(await newsFeed(200))
       .filter((n) => !n.stale)
       .map((n) => ({
-        url: siteUrl() + '/haber/' + n.id,
-        lastModified: n.verified_at,
+        url: siteUrl() + publicArticlePath(n.id),
       })),
     ...answerResources
       .map((r) => resolveAnswer(r, year, snapshot, now, available))

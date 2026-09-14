@@ -10,6 +10,9 @@ const config: NextConfig = {
     '@sak/shared',
   ],
   poweredByHeader: false,
+  async rewrites() {
+    return [{ source: '/haber/:id.md', destination: '/haber-markdown/:id' }];
+  },
   async headers() {
     return [
       {

@@ -2,17 +2,47 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { NewsDate } from '../../components/news-date';
 import { newsFeed } from '../../lib/product';
+import {
+  PUBLICATION_NAME,
+  SITE_DESCRIPTION,
+  publicArticlePath,
+  publicSiteConfigured,
+} from '../../lib/seo';
 export const dynamic = 'force-dynamic';
-export const metadata: Metadata = {
-  title: 'Resmî kaynaklardan haberler',
-  alternates: { canonical: '/haberler' },
-};
+
+type SearchParams = Record<string, string | string[] | undefined>;
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}): Promise<Metadata> {
+  const params = await searchParams;
+  const hasQuery = Object.keys(params).length > 0;
+  const title = 'Resmî kaynaklardan haberler';
+  const description = `${SITE_DESCRIPTION} ÖSYM, MEB ve diğer kayıtlı resmî kurumların duyurularından hazırlanan haberler.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: '/haberler' },
+    robots: { index: publicSiteConfigured() && !hasQuery, follow: true },
+    openGraph: {
+      type: 'website',
+      locale: 'tr_TR',
+      siteName: PUBLICATION_NAME,
+      title,
+      description,
+      url: '/haberler',
+    },
+  };
+}
 export default async function News({
   searchParams,
 }: {
-  searchParams: Promise<{ kaynak?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
-  const source = (await searchParams).kaynak;
+  const params = await searchParams;
+  const source = typeof params.kaynak === 'string' ? params.kaynak : undefined;
   const allowed = ['osym', 'meb', 'yok', 'gsb', 'yokak'];
   const articles = await newsFeed(
     100,
@@ -44,7 +74,7 @@ export default async function News({
       <ol className="announcement-list">
         {articles.map((a) => (
           <li key={a.id}>
-            <Link href={'/haber/' + a.id} prefetch={false}>
+            <Link href={publicArticlePath(a.id)} prefetch={false}>
               <span className="announcement-source">{a.source_name}</span>
               <strong>{a.title}</strong>
               <span>{a.excerpts[0]?.quote}</span>

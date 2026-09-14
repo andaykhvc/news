@@ -7,6 +7,7 @@ import {
 import { Search } from '../components/search';
 import { NewsDate } from '../components/news-date';
 import { newsFeed } from '../lib/product';
+import { publicArticlePath } from '../lib/seo';
 
 export const revalidate = 60;
 
@@ -63,7 +64,7 @@ export default async function Home() {
             {announcements.map((announcement) => {
               return (
                 <li key={announcement.id}>
-                  <a href={'/haber/' + announcement.id}>
+                  <a href={publicArticlePath(announcement.id)}>
                     <span className="announcement-source">
                       {announcement.source_name}
                     </span>

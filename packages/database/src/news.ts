@@ -69,7 +69,7 @@ export async function listNews(
     selection +
       ` and ($2::text is null or s.slug=$2)
     order by v.published_at desc nulls last,d.first_seen_at desc,d.id limit $1`,
-    [Math.min(200, Math.max(1, limit)), source ?? null],
+    [Math.min(1000, Math.max(1, limit)), source ?? null],
   );
   return rows.map((row) => articleSchema.parse(row));
 }

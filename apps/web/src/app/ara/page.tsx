@@ -11,6 +11,7 @@ import { Search } from '../../components/search';
 import { database } from '../../lib/product';
 export const metadata: Metadata = {
   title: 'Arama',
+  alternates: { canonical: '/ara' },
   robots: { index: false, follow: true },
 };
 export const dynamic = 'force-dynamic';
