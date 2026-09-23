@@ -10,15 +10,16 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@sak/answers": "workspace:*",
+    "@sak/database": "workspace:*",
     "@sak/domain": "workspace:*",
     "@sak/validation": "workspace:*",
+    "@vercel/analytics": "^2.0.1",
     "next": "16.3.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "@sak/answers": "workspace:*",
-    "@sak/database": "workspace:*",
-    "zod": "4.5.4",
-    "server-only": "0.0.1"
+    "server-only": "0.0.1",
+    "zod": "4.5.4"
   },
   "devDependencies": {
     "@types/react": "19.2.18",
