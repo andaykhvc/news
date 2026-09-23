@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
+import { Analytics } from '@vercel/analytics/next';
 import {
   PUBLICATION_NAME,
   SITE_DESCRIPTION,
@@ -82,6 +83,7 @@ export default function RootLayout({
             __html: serializeJsonLd(siteStructuredData()),
           }}
         />
+        <Analytics />
       </body>
     </html>
   );
